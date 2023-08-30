@@ -1,0 +1,89 @@
+from abc import ABC, abstractmethod
+
+import utils.utils_files as utils_files
+import utils.utils_dict as utils_dict
+
+from paths import Paths
+
+
+class ExpConfig(ABC):
+
+    IDS = Paths.IDS + "/exp_config"
+    ID_EXT = ".json"
+    STRUCTURE = []
+    MODULES = Paths.MODULES + "/exp_config"
+    MODULES_CONNECTOR = {}
+
+    def __init__(self, raw_exp_config_dict:dict, path=None, id=None):
+        
+        if path is not None:
+            self.init_from_path(path)
+        elif id is not None:
+            self.init_from_id(id)
+        else:
+            self.standard_init(raw_exp_config_dict)
+    
+
+    def init_from_path(self, path:str):
+        self.exp_config_dict = utils_files.load_json_file(file_path=path)
+        self.assign_attributes()
+        self.id = path.split("/")[-1].split(".")[0]
+        self.structure_path = self.build_structure_path()
+        
+
+    def init_from_id(self, id: str):
+        pass
+    
+
+    def standard_init(self, raw_exp_config_dict:dict):
+        self.exp_config_dict = self.preprocess_config(raw_exp_config_dict)
+        self.assign_attributes()
+        self.id = self.assign_id()
+        self.structure_path = self.build_structure_path()
+        
+
+    def preprocess_config(self, raw_exp_config):
+        return raw_exp_config
+    
+
+    def build_structure_path(self):
+        return self.id
+    
+    
+    def assign_id(self):
+        hash = utils_dict.dict2hash(self.exp_config_dict)
+        id = "exp_"+hash
+        other_ids = utils_files.get_json_filenames(ExpConfig.IDS, with_ext=False)
+        is_new = (id not in other_ids)
+        if is_new: self.save_expConfig(id)
+        return id
+    
+
+    def assign_attributes(self, input_dict, distinction:str=None):
+        for key, value in input_dict.items():
+            if isinstance(value, dict):
+                self.assign_attributes(value, distinction=key)
+            else:
+                if hasattr(self, key):
+                    key = distinction+"_"+key
+                    if hasattr(self, key):
+                        raise Exception(f"Attribute '{key}' already exists!")
+                setattr(self, key, value)
+
+    
+    def save_expConfig(self, id):
+        file_path = self.get_id_path()
+        utils_files.save_json_dict_to_path(file_path, self.exp_config_dict)
+    
+
+    def get_id_path(self):
+        return ExpConfig.IDS+"/"+self.structure_path + ExpConfig.IDS_EXT
+
+    def get_structure_path(self):
+        return self.structure_path
+    
+    def get_id(self):
+        return self.id
+    
+    def pretty_print(self):
+        utils_dict.print_dict_pretty(self.exp_config_dict)
