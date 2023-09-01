@@ -1,3 +1,5 @@
+[under construction]
+
 This repo is a toolkit to manage ML experiments.
 
 It allows to organize hyperparameters and experiments' configurations, load and save results, and perform hyperparameter search using some optimization algorithm.
@@ -25,12 +27,13 @@ activation: ["relu", "tanh"]
 
 Other parameters (results, logs, metric used for gridsearch etc.):
 ```yaml
-# file: config/hyperparams.yaml
+# file: config/extra_config.yaml
 
 verbose: 1
 log_frequency: 5
 gridsearch_metric: "test"
 ```
+
 
 #### Step 2: run your own experiment
 
