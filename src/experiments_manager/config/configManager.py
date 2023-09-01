@@ -45,12 +45,11 @@ class ConfigManager:
         self.expConfigs_list = self.preprocess_exp_config(raw_exp_config, expConfig_cls)
         self.extraConfig = ConfigManager.preprocess_extra_config(raw_extra_config, extraConfig_cls)
         
-        # remove configs already done
-        self.configs_done, self.configs_to_do = self.classify_configs(config_cls)
-        
+        self.configs_complete, self.configs_incomplete = self.classify_configs(config_cls)
         self.hyperparams_ids_list = [ hyperparam.id for hyperparam in self.hyperparams_list ]
         if verbose: self.print_report()
     
+
     def init_from_hyperparams_ids(self, hyperparams_ids_list, expConfig_cls):
         self.hyperparams_ids_list = hyperparams_ids_list
         _, raw_exp_config, raw_extra_params = ConfigManager.load_config()
@@ -81,7 +80,7 @@ class ConfigManager:
         self.hyperparam_search_space = copy.deepcopy(hyperparams_dict_of_lists)
         utils_dict.prune_tree_single_leaves(self.hyperparam_search_space)
         self.target_keys_paths = utils_dict.extract_paths_from_dict(self.hyperparam_search_space)
-        
+
         # pour chaque objet hyperparam : construire son tiny_hyperparam
         hyper_param_tiny = [ hyperparam.reduced_dict for hyperparam in self.hyperparam_id_list ]
 
@@ -178,18 +177,16 @@ class ConfigManager:
     
     
     def classify_configs(self, config_cls:Type[Config]):
-        config_done  = []
-        config_to_do = []
+        configs_complete = []
+        configs_incomplete   = []
         for exp_config in self.expConfigs_list:
             for hyperparams in self.hyperparams_list:
-                # config = Config(hyperparams=hyperparams, exp_config=exp_configs, dynamic_params=dynamic_params, extra_params=self.extra_params)
                 config = config_cls(hyperparams=hyperparams, expConfig=exp_config, extraConfig=self.extraConfig)
-                
-                if config._is_complete() is None:
-                    config_to_do.append(config)
+                if config.is_complete():
+                    configs_complete.append(config)
                 else:
-                    config_done.append(config)
-        return config_done, config_to_do
+                    configs_incomplete.append(config)
+        return configs_complete, configs_incomplete
 
     
     @staticmethod
@@ -219,15 +216,15 @@ class ConfigManager:
         print("• "+str(len(self.hyperparams_list)) + " hyperparameters")
         print("• "+str(len(self.corpus_list))+" corpus")
         # print("• "+str(len(self.seeds_list))+" seeds")
-        print("• "+str(len(self.configs_to_do))+"/"+str(len(self.configs_to_do)+len(self.configs_done))+ " configs to run")
+        print("• "+str(len(self.configs_incomplete))+"/"+str(len(self.configs_incomplete)+len(self.configs_complete))+ " configs to run")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
     
 
     def get_config_lists(self):
-        return self.configs_done, self.configs_to_do
+        return self.configs_complete, self.configs_incomplete
     
     def get_configs_to_do(self):
-        return self.configs_to_do
+        return self.configs_incomplete
     
     def get_expConfigs_list(self):
         return self.expConfigs_list
