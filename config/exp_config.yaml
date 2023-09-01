@@ -1,3 +1,5 @@
-
-
+#### RL environment ####
+env: "env1"
+corpus: "corpus2"
+num_simulated_students: 50
 reward_model: "binary"

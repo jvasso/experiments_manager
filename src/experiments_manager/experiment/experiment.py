@@ -4,7 +4,7 @@ import time
 from ..config import Config
 
 
-class Trial(ABC):
+class Experiment(ABC):
     
     def __init__(self, config):
         assert type(config)==Config

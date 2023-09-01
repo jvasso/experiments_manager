@@ -213,6 +213,7 @@ def compare_structure(dict1, dict2):
     else:
         return False
 
+
 def check_same_structure(tree_dicts:List[dict]):
     # Compare each dictionary with the first one
     for i in range(1, len(tree_dicts)):
@@ -242,6 +243,19 @@ def extract_paths_from_dict(tree_dict, current_path=None):
         new_path = current_path + [key]
         if isinstance(value, dict):
             paths.extend(extract_paths_from_dict(value, new_path))
+        else:
+            paths.append(new_path)
+    return paths
+
+
+def generate_dict_paths(tree, current_path=None):
+    if current_path is None:
+        current_path = []
+    paths = []
+    for key, value in tree.items():
+        new_path = current_path + [key]
+        if isinstance(value, dict):
+            paths.extend(generate_dict_paths(value, new_path))
         else:
             paths.append(new_path)
     return paths

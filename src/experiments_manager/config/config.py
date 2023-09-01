@@ -1,5 +1,6 @@
 import os
 from abc import ABC, abstractmethod
+from src.experiments_manager.results.expResults import ExpResults
 
 import utils.utils_dict as utils_dict
 import utils.utils_files as utils_files
@@ -7,6 +8,7 @@ import utils.utils_files as utils_files
 from hyperparams import Hyperparams
 from expConfig import ExpConfig
 from extraConfig import ExtraConfig
+from configResult import ConfigResult
 from ..paths import Paths
 
 
@@ -24,12 +26,29 @@ class Config(ABC):
         self.build_special_attr()
         
         self.results_folder_path = self.build_results_folder_path()
-        self.config_results, self._is_complete = self.search_existing_results()
-        if self.config_results is None: self.create_results_folder()
+        self.results, self._is_complete = self.search_existing_results()
+        if self.results is None: self.create_results_folder()
     
 
     def build_special_attr(self):
         pass
+    
+
+    def save_trial_result(self):
+        pass
+
+
+
+
+    # Il y a des resultats qui auront été enregistres de maniere differente mais qui 
+    # auront quand meme les donnees necessaires pour la gridsearch
+    # --> ce n'est pas la meme chose de faire une gridsearch et de lancer un truc juste pour la courbe
+    # selon quel critère considère-t-on qu'on a fini une expé ?
+    # 1er cas : on veut faire une gridsearch : seul 1 critère compte
+    # 2e cas  : 
+    # dans un result, il y a : 
+    # • le result dict
+    # • les logs
     
 
     def check_complete_results(self, result, verbose=False):
@@ -52,7 +71,6 @@ class Config(ABC):
 
 
     def search_existing_results(self, verbose=False):
-        if verbose: self.display_config_infos()
         if not os.path.isdir(self.results_folder_path):
             if verbose: self.display_did_not_found_results(error_msg="doesn't exist.")
             return None, False
@@ -61,6 +79,14 @@ class Config(ABC):
         return raw_results_dict, is_complete
     
 
+    def retrieve_results(self, vrbose=False):
+        trials_names = utils_files.get_dirnames_in_dir(self.results_folder_path)
+        for trial_name in trials_names:
+            path = self.results_folder_path + "/" + trial_name
+            result = ConfigResult(self.extraConfig, path)
+        
+
+    
     def build_results_folder_path(self):
         structures_paths_dict = {"hyperparams":self.hyperparams.get_structure_path(), "exp_config":self.expConfig.get_structure_path()}
         path_list = [ structures_paths_dict[key] for key in Config.RESULTS_STRUCTURE ]

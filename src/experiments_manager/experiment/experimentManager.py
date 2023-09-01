@@ -9,12 +9,12 @@ from experiments_manager.config import Hyperparams
 from utils.utils_dict import dict2hash
 
 from ..config.configManager import ConfigManager
-from experiment import Trial
+from experiment import Experiment
 
 
 class ExperimentManager:
 
-    def __init__(self, configManager:ConfigManager, experiment_cls:Type[Trial]):
+    def __init__(self, configManager:ConfigManager, experiment_cls:Type[Experiment]):
         
         self.configManager = configManager
         self.experiment_cls = experiment_cls

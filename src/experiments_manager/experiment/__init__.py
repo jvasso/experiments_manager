@@ -1,3 +1,3 @@
 
-from .experiment import Trial
+from .experiment import Experiment
 from .experimentManager import ExperimentManager

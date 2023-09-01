@@ -34,7 +34,7 @@ class ExpResults:
     @staticmethod
     def find_hyperparams_ids_in_dir(exp_params_path):
         hyperparams_ids_list = []
-        subfolders_names_list = utils_files.get_subfolders_names(exp_params_path)
+        subfolders_names_list = utils_files.get_dirnames_in_dir(exp_params_path)
         hyperparams_ids_list = [ subfolder_name for subfolder_name in subfolders_names_list if "hyperparams" in subfolder_name]
         return hyperparams_ids_list
     

@@ -77,17 +77,17 @@ def create_folder(dir_path):
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
 
-
-def get_subfolders_names(directory):
-    return [name for name in os.listdir(directory) if os.path.isdir(os.path.join(directory, name))]
+def get_dirnames_in_dir(directory):
+    return [f.name for f in os.scandir(directory) if f.is_dir()]
 
 def get_filenames_in_dir(directory):
-    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+    return [f.name for f in os.scandir(directory) if f.is_file()]
+    # return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
 
 
-def create_unique_date_id(length=4):    
+def create_unique_date_id(key_length=4):    
     formatted_time = datetime.datetime.now().strftime("%y-%m-%d-%Hh%Mmin%Ssec%f")[:-1]
-    unique_key = ''.join(secrets.choice(string.ascii_letters + string.digits) for i in range(length))
+    unique_key = ''.join(secrets.choice(string.ascii_letters + string.digits) for i in range(key_length))
     return formatted_time+"-"+unique_key
 
 def find_most_recent(dates_list):
@@ -128,6 +128,7 @@ def get_json_filenames(directory, with_ext=True):
                     filenames.append(filename.split(".json")[0])
     return filenames
 
+
 def get_yaml_filenames(directory):
     filenames = []
     if os.path.isdir(directory):
@@ -166,3 +167,4 @@ def find_files_in_dir(directory_path, filenames, remove_ext=True):
                 found_files.append(os.path.join(root, file))
                 not_found_files.remove(file)
     return found_files, not_found_files
+

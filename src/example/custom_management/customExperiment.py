@@ -1,11 +1,11 @@
 
 from experiments_manager.config import Config
-from experiments_manager.experiment import Trial
+from experiments_manager.experiment import Experiment
 
 import random
 
 
-class CustomExperiment(Trial):
+class CustomExperiment(Experiment):
 
     def __init__(self, config:Config, seed):
         super().__init__(config)
