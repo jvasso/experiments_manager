@@ -45,12 +45,15 @@ activation: ["relu", "tanh"]
 # this will run all configurations: {"num_layers": 4, "activation": "relu"}, {"num_layers": 4, "activation": "tanh"} etc.
 ```
 
-Other parameters (results, logs, metric used for gridsearch etc.):
+Other parameters (results, logs, metrics used for the gridsearch etc.):
 ```yaml
 # file: config/extra_config.yaml
-verbose: 1
 log_frequency: 5
-gridsearch_metric: "test"
+
+# results params (mandatory)
+metrics: {"train_loss", "valid_loss"} # the metrics measured at each experiment
+gridsearch_metric: "valid_loss"       # the metric used for the gridsearch (it will drive the search in the hyperparameter space)
+criteria_complete_result: {"seed":10} # the criteria that must be fulfilled to consider one experiment as complete (--> as many "trials" as values: here, 10 seeds will be tried)
 ```
 
 
@@ -66,12 +69,15 @@ class CustomExperiment(Experiment):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def run_experiment(self):
+    def run_experiment(self, trial_params):
+        seed = trial_params["seed"]
+
         num_layers = self.config.hyperparams.num_layers
         activation = self.config.hyperparams.activation
         loss = self.config.exp_config.loss
+
         model = MyModel(num_layers=num_layers, activation=activation)
-        results = model.train(loss=loss)
+        results = model.train(loss=loss) # assert results = {"train_loss":..., "valid_loss":...}
         return result
 ```
 

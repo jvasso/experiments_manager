@@ -13,11 +13,11 @@ from ..utils import utils_dict as utils_dict
 
 class ExperimentManager:
 
-    def __init__(self, configManager:ConfigManager, experiment_cls:Type[Experiment], verbose=0):
+    def __init__(self, configManager:ConfigManager, experiment_cls:Type[Experiment], verbose_level=0):
         self.configManager = configManager
         self.experiment_cls = experiment_cls
         self.configManager.partially_completed_configs
-        self.verbose = verbose
+        self.verbose = verbose_level
     
     
     def run_experiments(self, hyperparam_optimizer=None, num_trials:int=None):
@@ -66,9 +66,7 @@ class ExperimentManager:
                 config = self.configManager.get_config(hyperparam_id=hyperparam_id, exp_config_id=exp_config_id)
                 experiment = self.experiment_cls(config)
                 results, exp_infos = experiment._run_exp()
-                
-                
-            
+    
     
     def preprocess_search_space(self, search_space):
         return search_space
