@@ -1,9 +1,7 @@
-#### RUN ####
-verbose: 1
-
-#### LOGS ####
+#### LOGS
 log_frequency: 5
 
-#### RESULTS ####
+#### RESULTS
+metrics: {"last_train_reward", "last_test_reward"}
 gridsearch_metric: "last_train_reward"
 criteria_complete_result: {"seed":10}

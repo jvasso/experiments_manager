@@ -1,0 +1,83 @@
+
+
+import pprint
+
+
+class ResultSearch:
+
+    COMPLETE_CRITERIA = "criteria_complete_result"
+
+    def __init__(self):
+        self.extra_config = {"criteria_complete_result": {"seed":2, "corpus":3}}
+        self.result_dict = {
+            "infos":{"data_structure":["corpus","seed"], "metrics":{"train":"tr", "test":"ts"}},
+            "data":{
+                "corpus0":{"0":{"tr":0.2,"ts":0.4},"1":{"tr":0.3,"ts":0.5}},
+                "corpus1":{"0":{"tr":0.2,"ts":0.4},"1":{"tr":0.3,"ts":0.5}},
+                "corpus2":None
+            }
+        }
+        self.metric_of_interest = "trr"
+        self.data_structure = self.result_dict["infos"]["data_structure"]
+
+    def analyze_results(self):
+        level_dict = self.result_dict["data"]
+        incomplete_level_keys = self.search_incomplete_results(level_dict, 0)
+        return incomplete_level_keys
+
+
+    # def check_data_results_level(self, level_dict, key_idx):
+    #     incomplete_level_keys = [] if key_idx == len(self.data_structure)-1 else {}
+    #     key = self.data_structure[key_idx]
+    #     expected_keys = self.generate_expected_keys(key)
+    #     for expected_key in expected_keys:
+    #         if key_idx == len(self.data_structure)-1:
+    #             if (expected_key not in level_dict.keys()) or (level_dict[expected_key] is None):
+    #                 incomplete_level_keys.append(expected_key)
+    #         else:
+    #             if (expected_key not in level_dict.keys()) or (level_dict[expected_key] is None):
+    #                 level_dict[expected_key] = {}
+    #             incomplete_level_subkeys = self.check_data_results_level(level_dict[expected_key], key_idx+1)
+    #             incomplete_level_keys[expected_key] = incomplete_level_subkeys
+    #     return incomplete_level_keys
+    
+
+    def search_incomplete_results(self, level_dict, key_idx):
+        incomplete_level_keys = []
+        key = self.data_structure[key_idx]
+        expected_keys = self.generate_expected_keys(key)
+        for expected_key in expected_keys:
+            if key_idx == len(self.data_structure)-1:
+                if self.is_incomplete(level_dict, expected_key):
+                    incomplete_level_keys.append({key:expected_key})
+            else:
+                if (expected_key not in level_dict.keys()) or (level_dict[expected_key] is None):
+                    level_dict[expected_key] = {}
+                incomplete_level_subkeys = self.search_incomplete_results(level_dict[expected_key], key_idx+1)
+                incomplete_level_keys = incomplete_level_keys + [ {**current_dict, key:expected_key} for current_dict in incomplete_level_subkeys]
+        return incomplete_level_keys
+    
+
+    def is_incomplete(self, level_dict, expected_key):
+        if expected_key not in level_dict.keys():
+            return True
+        elif type(level_dict[expected_key]) != dict:
+            return True
+        elif self.metric_of_interest not in level_dict[expected_key].keys():
+            return True
+        else:
+            return False
+    
+
+    def generate_expected_keys(self, key):
+        expected_num = self.extra_config[ResultSearch.COMPLETE_CRITERIA][key]
+        if key == "seed":
+            expected_keys = [ str(num) for num in range(expected_num)]
+        elif key == "corpus":
+            expected_keys = [ "corpus"+str(num) for num in range(expected_num)]
+        return expected_keys
+
+
+result_search = ResultSearch()
+incomplete_level_keys = result_search.analyze_results()
+pprint.pprint(incomplete_level_keys)

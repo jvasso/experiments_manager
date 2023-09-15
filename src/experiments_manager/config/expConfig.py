@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-import utils.utils_files as utils_files
-import utils.utils_dict as utils_dict
+from ..utils import utils_dict as utils_dict
+from ..utils import utils_files as utils_files
 
-from paths import Paths
+from ..paths import Paths
 
 
 class ExpConfig(ABC):
@@ -26,10 +26,10 @@ class ExpConfig(ABC):
 
     def init_from_path(self, path:str):
         self.exp_config_dict = utils_files.load_json_file(file_path=path)
-        self.assign_attributes()
+        self.assign_attributes(self.exp_config_dict)
         self.id = path.split("/")[-1].split(".")[0]
         self.structure_path = self.build_structure_path()
-        
+    
 
     def init_from_id(self, id: str):
         pass
@@ -37,9 +37,10 @@ class ExpConfig(ABC):
 
     def standard_init(self, raw_exp_config_dict:dict):
         self.exp_config_dict = self.preprocess_config(raw_exp_config_dict)
-        self.assign_attributes()
-        self.id = self.assign_id()
+        self.assign_attributes(self.exp_config_dict)
+        self.id, is_new = self.assign_id()
         self.structure_path = self.build_structure_path()
+        if is_new: self.save_exp_config(id)
         
 
     def preprocess_config(self, raw_exp_config):
@@ -53,10 +54,9 @@ class ExpConfig(ABC):
     def assign_id(self):
         hash = utils_dict.dict2hash(self.exp_config_dict)
         id = "exp_"+hash
-        other_ids = utils_files.get_json_filenames(ExpConfig.IDS, with_ext=False)
+        other_ids = utils_files.find_all_json_files_in_dir(ExpConfig.IDS, with_ext=False)
         is_new = (id not in other_ids)
-        if is_new: self.save_expConfig(id)
-        return id
+        return id, is_new
     
 
     def assign_attributes(self, input_dict, distinction:str=None):
@@ -71,13 +71,13 @@ class ExpConfig(ABC):
                 setattr(self, key, value)
 
     
-    def save_expConfig(self, id):
+    def save_exp_config(self, id):
         file_path = self.get_id_path()
         utils_files.save_json_dict_to_path(file_path, self.exp_config_dict)
     
 
     def get_id_path(self):
-        return ExpConfig.IDS+"/"+self.structure_path + ExpConfig.IDS_EXT
+        return ExpConfig.IDS+"/"+self.structure_path + ExpConfig.ID_EXT
 
     def get_structure_path(self):
         return self.structure_path

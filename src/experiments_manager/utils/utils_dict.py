@@ -17,12 +17,12 @@ def get_value_at_path(path, tree:dict):
     return current_node
 
 
-def set_value_at_path(path, value, tree:dict, new_path=False):
+def set_value_at_path(path, value, tree:dict, maybe_new_path:bool=True, new_path:bool=False):
     assert type(tree)==dict
     path = maybe_str_path2list_path(path)
     current_dict = tree
     for i in range(len(path)):
-        full_key_str = str("/".join( [path[j] for j in range(i)] ))
+        full_key_str = str("/".join( [path[j] for j in range(i+1)] ))
         key = path[i]
         if key in current_dict:
             if i == len(path)-1:
@@ -34,13 +34,13 @@ def set_value_at_path(path, value, tree:dict, new_path=False):
             else:
                 print("WARNING: Parameter "+full_key_str+" is neither a leaf nor a dict.")
                 break
-        elif new_path:
+        elif new_path or maybe_new_path:
             if i == len(path)-1:
                 current_dict[key] = value
             else:
                 current_dict[key] = {}
         else:
-            raise Exception("Error: Parameter "+full_key_str+" was not found in hyperparameters.")
+            raise Exception("Error: Parameter '"+full_key_str+"' was not found in hyperparameters.")
     return tree
 
 

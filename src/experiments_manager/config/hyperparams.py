@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-import utils.utils_dict as utils_dict
-import utils.utils_files as utils_files
+from ..utils import utils_dict as utils_dict
+from ..utils import utils_files as utils_files
 
-from paths import Paths
+from ..paths import Paths
 
 class Hyperparams(ABC):
 
@@ -41,7 +41,7 @@ class Hyperparams(ABC):
 
     def standard_init(self, raw_hyperparams_dict:dict):
         self.hyperparams_dict, self.infos_dict = self.preprocess_hyperparams(raw_hyperparams_dict)
-        self.id, self.is_new = Hyperparams.assign_id(self.hyperparams_dict)
+        self.id = Hyperparams.assign_id(self.hyperparams_dict)
         self.structure_path = self.build_structure_path()
         self.assign_attributes(self.hyperparams_dict)
 

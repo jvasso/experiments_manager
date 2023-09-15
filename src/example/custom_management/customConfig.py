@@ -9,5 +9,3 @@ class CustomConfig(Config):
     def build_special_attr(self):
         self.special_attr = 0
     
-    def display_config_infos(self):
-        print("display_config_infos")
