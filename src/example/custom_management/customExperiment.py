@@ -1,20 +1,31 @@
 
-from experiments_manager.config import Config
-from experiments_manager.experiment import Experiment
+from ...experiments_manager.config import Config
+from ...experiments_manager.experiment import Experiment
 
 import random
 
 
 class CustomExperiment(Experiment):
 
-    def __init__(self, config:Config, seed):
+    def __init__(self, config:Config):
         super().__init__(config)
-        self.seed = seed
+    
 
-
-    def _run_experiment(self):
+    def run_exp(self, trial_params):
         
-        random.seed(a=self.seed)
-        result = random.randint(0,9)
+        # hyperparams
+        self.num_layers = self.config.hyperparams.num_layers
+        self.activation = self.config.hyperparams.activation
+        self.pretrained_model = self.config.hyperparams.pretrained_model
+        
+        # exp_config
+        self.env_name = self.config.exp_config.env
+        self.reward_name = self.config.exp_config.reward
 
+        # extra_config
+        self.log_frequency = self.config.extra_config.log_frequency
+
+        random.seed(a=int(trial_params["seed"]))
+        result = {"last_train_reward":random.randint(0,9), "last_test_reward":random.randint(0,9)}
+        
         return result

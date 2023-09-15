@@ -26,8 +26,8 @@ class ResultsManager(ABC):
     def __init__(self, configManager:ConfigManager=None):
         
         self.configManager   = configManager
-        self.expConfigs_list = self.configManager.expConfigs_list
-        self.extraConfig     = self.configManager.extraConfig
+        self.exp_configs_list = self.configManager.exp_config_list
+        self.extra_config     = self.configManager.extra_config
         
         self.report        = None
         self.ranking_infos = None
@@ -35,7 +35,7 @@ class ResultsManager(ABC):
 
         hyperparams_list = self.configManager.hyperparams_list
         self.hyperparams_ids_list = [ hyperparams.id for hyperparams in hyperparams_list ]
-        self.expResults_list = [ ExpResults(expConfig, self.extraConfig, hyperparams_list=hyperparams_list) for expConfig in self.expConfigs_list ]
+        self.expResults_list = [ ExpResults(exp_config, self.extra_config, hyperparams_list=hyperparams_list) for exp_config in self.exp_configs_list ]
 
 
     def save_report(self):
@@ -58,8 +58,8 @@ class ResultsManager(ABC):
         report = {}
         report["criteria"] = self.criteria
         report["ranking_infos"] = self.ranking_infos
-        report["exp_params_ids"]            = [exp_params.get_id() for exp_params in self.expConfigs_list]
-        report["exp_params_structure_path"] = [exp_params.get_structure_path() for exp_params in self.expConfigs_list]
+        report["exp_params_ids"]            = [exp_params.get_id() for exp_params in self.exp_configs_list]
+        report["exp_params_structure_path"] = [exp_params.get_structure_path() for exp_params in self.exp_configs_list]
         return report
 
 

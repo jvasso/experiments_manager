@@ -1,76 +1,74 @@
+from genericpath import isdir
 import os
 from typing import Type
 import copy
 import pprint
 
-from hyperparams import Hyperparams
-from expConfig import ExpConfig
-from extraConfig import ExtraConfig
+from .hyperparams import Hyperparams
+from .expConfig import ExpConfig
+from .extraConfig import ExtraConfig
 from .config import Config
-from ..paths import Paths
 
-import utils.utils_files as utils_files
-import utils.utils_dict as utils_dict
+from ..utils import utils_dict as utils_dict
+from ..utils import utils_files as utils_files
 
 
 class ConfigManager:
-    
-    CONFIG              = Paths.PROJECT_PATH+"/config"
-    CONFIG_HYPERPARAMS  = CONFIG+"/hyperparams"
-    CONFIG_EXP_CONFIG   = CONFIG+"/exp_config"
-    CONFIG_EXTRA_PARAMS = CONFIG+"/extra_params"
 
+    PARTIALLY_COMPLETE_THRESHOLD = 0.5
+    
     def __init__(self,
+                 project_path:str=".",
                  hyperparams_cls:Type[Hyperparams]=Hyperparams,
-                 expConfig_cls:Type[ExpConfig]=ExpConfig,
-                 extraConfig_cls:Type[ExtraConfig]=ExtraConfig,
+                 exp_config_cls:Type[ExpConfig]=ExpConfig,
+                 extra_config_cls:Type[ExtraConfig]=ExtraConfig,
                  config_cls:Type[Config]=Config,
                  hyperparams_ids_list:list=None,
-                 exp_config_ids_list:list=None):
+                 exp_config_ids_list:list=None,
+                 verbose_level:int=0):
+        ConfigManager._set_paths(project_path)
+        self.verbose = verbose_level
+        if self.verbose >= 1: print("\nINITIALIZE ConfigManager")
         if (hyperparams_ids_list is not None):
             if (exp_config_ids_list is not None):
                 self.init_from_ids(hyperparams_ids_list, exp_config_ids_list)
             else:
-                self.init_from_hyperparams_ids(hyperparams_ids_list, expConfig_cls)
+                self.init_from_hyperparams_ids(hyperparams_ids_list, exp_config_cls)
         else:
-            self.standard_init(hyperparams_cls, expConfig_cls, extraConfig_cls, config_cls)
+            self.standard_init(hyperparams_cls, exp_config_cls, extra_config_cls, config_cls)
 
     
-    def standard_init(self, hyperparams_cls, expConfig_cls, extraConfig_cls, config_cls, verbose=False):
+    def standard_init(self, hyperparams_cls, exp_config_cls, extra_config_cls, config_cls:Type[Config]=Config, verbose=False):
         self.hyperparams_ids_list = None
-        raw_hyperparams, raw_exp_config, raw_extra_config = ConfigManager.load_config()
-        
-        # preprocess config
+        raw_hyperparams, raw_exp_config, raw_extra_config = self.load_config()
         self.hyperparams_list = self.preprocess_hyperparams(raw_hyperparams, hyperparams_cls)
-        self.expConfigs_list = self.preprocess_exp_config(raw_exp_config, expConfig_cls)
-        self.extraConfig = ConfigManager.preprocess_extra_config(raw_extra_config, extraConfig_cls)
+        self.exp_config_list  = self.preprocess_exp_config(raw_exp_config, exp_config_cls)
+        self.extra_config     = self.preprocess_extra_config(raw_extra_config, extra_config_cls)
         
-        self.configs_complete, self.configs_incomplete = self.classify_configs(config_cls)
+        self.completed_configs, self.partially_completed_configs, self.incomplete_configs = self.classify_configs(config_cls)
+        self.num_configs = len(self.completed_configs)+len(self.partially_completed_configs)+len(self.incomplete_configs)
         self.hyperparams_ids_list = [ hyperparam.id for hyperparam in self.hyperparams_list ]
         if verbose: self.print_report()
     
-
-    def init_from_hyperparams_ids(self, hyperparams_ids_list, expConfig_cls):
+    
+    def init_from_hyperparams_ids(self, hyperparams_ids_list, exp_config_cls):
         self.hyperparams_ids_list = hyperparams_ids_list
-        _, raw_exp_config, raw_extra_params = ConfigManager.load_config()
+        _, raw_exp_config, raw_extra_config = self.load_config()
         
-        # self.exp_configs_list, self.seeds_list, self.corpus_list = ConfigManager.preprocess_exp_config(raw_exp_config)
-        self.expConfigs_list  = self.preprocess_exp_config(raw_exp_config, expConfig_cls)
+        self.exp_config_list  = self.preprocess_exp_config(raw_exp_config, exp_config_cls)
         self.hyperparams_list = ConfigManager.load_hyperparams(self.hyperparams_ids_list)
-        self.extraConfig      = self.preprocess_extra_config(raw_extra_params)
+        self.extra_config     = self.preprocess_extra_config(raw_extra_config)
     
 
     def init_from_ids(self, hyperparams_ids_list, exp_config_ids_list):
         self.exp_config_ids_list  = exp_config_ids_list
         self.hyperparams_ids_list = hyperparams_ids_list
         
-        _, __, raw_extra_params = ConfigManager.load_config(no_hyperparams=True)
+        _, __, raw_extra_config = self.load_config(no_hyperparams=True)
 
-        self.expConfigs_list = ConfigManager.load_exp_config(self.exp_config_ids_list)
-        # self.seeds_list  = sorted(seeds_list)
-        # self.corpus_list = sorted(corpus_list)
-        self.hyperparams_list     = ConfigManager.load_hyperparams(self.hyperparams_ids_list)
-        self.extraConfig         = self.preprocess_extra_config(raw_extra_params)
+        self.exp_config_list  = ConfigManager.load_exp_config(self.exp_config_ids_list)
+        self.hyperparams_list = ConfigManager.load_hyperparams(self.hyperparams_ids_list)
+        self.extra_config     = self.preprocess_extra_config(raw_extra_config)
     
 
     def prepare_hyperparam_optim(self):
@@ -105,12 +103,6 @@ class ConfigManager:
         if len(not_found_files) > 0: raise Exception("Some exp_config ids were not found:\n"+"\n".join(not_found_files))
         exp_config_list = [ ExpConfig(path=file_path) for file_path in exp_config_file_paths]
         return exp_config_list
-    
-    # @staticmethod
-    # def build_exp_config_ids_dict():
-    #     exp_config_ids_path = ExpConfig.IDS
-    #     exp_config_ids_dict = utils_files.get_tree_structure(exp_config_ids_path)
-    #     return exp_config_ids_dict
 
 
     @staticmethod
@@ -126,10 +118,11 @@ class ConfigManager:
         """
         Preprocess hyperparams, convert them into list of objects.
         """
+        if self.verbose>=1: print("Preprocessing hyperparams...")
         hyperparams_listified_leaves = utils_dict.listify_leaves(raw_hyperparams)
         hyperparams_list_of_dicts    = utils_dict.DL2LD(hyperparams_listified_leaves)
         hyperparams_list_of_obj = []
-        hyperparams_ids = {}
+        hyperparams_ids = set()
         for hyperparams_dict in hyperparams_list_of_dicts:
             hyperparam_obj = hyperparams_cls(hyperparams_dict=copy.deepcopy(hyperparams_dict)) # TODO: try with and without deepcopy
             hyperparam_id = hyperparam_obj.get_id()
@@ -138,67 +131,59 @@ class ConfigManager:
                 hyperparams_list_of_obj.append(hyperparam_obj)
         return hyperparams_list_of_obj
 
-    # @staticmethod
-    # def preprocess_exp_config(raw_exp_config):
-    #     seeds_list  = ConfigManager.generate_seeds(mode=raw_exp_config["seed"])
-    #     corpus_list = raw_exp_config["corpus"]
-    #     raw_exp_config["seed"] = seeds_list
 
-    #     exp_config_listified_leaves = utils_dict.listify_leaves(raw_exp_config)
-    #     exp_config_list_of_dicts    = ConfigManager.DL2LD(exp_config_listified_leaves)
-    #     exp_config_list_of_objects  = [ ExpConfig(copy.deepcopy(exp_config_dict)) for exp_config_dict in exp_config_list_of_dicts ]
-    #     return exp_config_list_of_objects, seeds_list, corpus_list
-    def preprocess_exp_config(self, raw_exp_config, expConfig_cls:Type[ExpConfig]):
-        seeds_list  = ConfigManager.generate_seeds(mode=raw_exp_config["seed"])
-        raw_exp_config["seed"] = seeds_list
+    def preprocess_exp_config(self, raw_exp_config, exp_config_cls:Type[ExpConfig]):
+        if self.verbose>=1: print("Preprocessing experiment configs...")
         exp_config_listified_leaves = utils_dict.listify_leaves(raw_exp_config)
         exp_config_list_of_dicts    = utils_dict.DL2LD(exp_config_listified_leaves)
-        exp_config_list_of_objects  = [ expConfig_cls(copy.deepcopy(exp_config_dict)) for exp_config_dict in exp_config_list_of_dicts ]
+        exp_config_list_of_objects  = [ exp_config_cls(copy.deepcopy(exp_config_dict)) for exp_config_dict in exp_config_list_of_dicts ]
         return exp_config_list_of_objects
-
-    @staticmethod
-    def remove_duplicates(list_of_objects):
-        ids_list = []
-        duplicates = []
-        final_list_of_objects = []
-        for obj in list_of_objects:
-            obj_id = obj.get_id()
-            if obj_id not in ids_list:
-                ids_list.append(obj_id)
-                final_list_of_objects.append(obj)
-            else:
-                duplicates.append(obj_id)
-        return final_list_of_objects, duplicates
     
 
-    def preprocess_extra_config(self, raw_extra_params, extraConfig_cls:Type[ExtraConfig]):
-        extraConfig = extraConfig_cls(copy.deepcopy(raw_extra_params))
-        return extraConfig
+    def preprocess_extra_config(self, raw_extra_config, extra_config_cls:Type[ExtraConfig]):
+        if self.verbose>=1: print("Preprocessing extra config...")
+        extra_config = extra_config_cls(copy.deepcopy(raw_extra_config))
+        return extra_config
     
     
-    def classify_configs(self, config_cls:Type[Config]):
-        configs_complete = []
-        configs_incomplete   = []
-        for exp_config in self.expConfigs_list:
+    def classify_configs(self, config_cls:Type[Config]=Config):
+        if self.verbose>=1: print("Classifying configurations...")
+        completed_configs = []
+        partially_completed_configs = []
+        incomplete_configs = []
+        num_configs = len(self.exp_config_list)*len(self.hyperparams_list)
+        config_idx  = 0
+        for exp_config in self.exp_config_list:
             for hyperparams in self.hyperparams_list:
-                config = config_cls(hyperparams=hyperparams, expConfig=exp_config, extraConfig=self.extraConfig)
-                if config.is_complete():
-                    configs_complete.append(config)
+                if self.verbose >= 2: print("• Config "+str(config_idx+1)+"/"+str(num_configs))
+                config = config_cls(hyperparams=hyperparams, exp_config=exp_config, extra_config=self.extra_config, verbose=self.verbose)
+                result_progress = config.check_result_progress()
+                if result_progress == 1:
+                    if self.verbose >= 2: print("Already completed.")
+                    completed_configs.append(config)
+                elif result_progress >= ConfigManager.PARTIALLY_COMPLETE_THRESHOLD:
+                    if self.verbose >= 2: print("Partially completed.")
+                    partially_completed_configs.append(config)
                 else:
-                    configs_incomplete.append(config)
-        return configs_complete, configs_incomplete
+                    if self.verbose >= 2: print("Not completed.")
+                    incomplete_configs.append(config)
+                config_idx += 1
+        return completed_configs, partially_completed_configs, incomplete_configs
 
     
-    @staticmethod
-    def load_config(no_hyperparams=False):
-        hyperparams  = None if no_hyperparams else ConfigManager.get_hyperparams(ConfigManager.CONFIG_HYPERPARAMS)
-        exp_config   = utils_files.load_yaml_file(ConfigManager.CONFIG_EXP_CONFIG)
-        extra_config = utils_files.load_yaml_file(ConfigManager.CONFIG_EXTRA_PARAMS)
+    def load_config(self, no_hyperparams=False):
+        hyperparams  = None if no_hyperparams else ConfigManager.get_hyperparams(ConfigManager.HYPERPARAMS_PATH)
+        exp_config   = utils_files.load_yaml_file(ConfigManager.EXP_CONFIG_PATH)
+        extra_config = utils_files.load_yaml_file(ConfigManager.EXTRA_CONFIG_PATH)
         return hyperparams, exp_config, extra_config
 
 
     @staticmethod
     def get_hyperparams(dir):
+        if not os.path.isdir(dir):
+            dir += ".yaml" if ".yaml" not in dir else ""
+            if not os.path.isfile(dir): raise Exception(dir + " is not a directory nor a file.")
+            return utils_files.load_yaml_file(dir)
         hyperparams = {}
         _, sub_dirs, files = next(os.walk(dir))
         for file in files:
@@ -210,35 +195,19 @@ class ConfigManager:
         return hyperparams
     
 
+    @classmethod
+    def _set_paths(cls, project_path):
+        cls.PROJECT_PATH      = project_path
+        cls.CONFIG_PATH       = cls.PROJECT_PATH + "/config"
+        cls.HYPERPARAMS_PATH  = cls.CONFIG_PATH  + "/hyperparams"
+        cls.EXP_CONFIG_PATH   = cls.CONFIG_PATH  + "/exp_config"
+        cls.EXTRA_CONFIG_PATH = cls.CONFIG_PATH  + "/extra_config"
+    
+
     def print_report(self):
         print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         print("Config Manager report:\n")
-        print("• "+str(len(self.hyperparams_list)) + " hyperparameters")
-        print("• "+str(len(self.corpus_list))+" corpus")
-        # print("• "+str(len(self.seeds_list))+" seeds")
-        print("• "+str(len(self.configs_incomplete))+"/"+str(len(self.configs_incomplete)+len(self.configs_complete))+ " configs to run")
+        print("• "+str(len(self.exp_config_ids_list)) + " experiment configs")
+        print("• "+str(len(self.hyperparams_list)) + " hyperparameter configs")
+        print("• "+str(len(self.num_configs)) + " configs ("+str(len(self.completed_configs)) + " completed, "+str(len(self.partially_completed_configs)) + " partially, "+str(len(self.incomplete_configs)) + " incomplete)")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
-    
-
-    def get_config_lists(self):
-        return self.configs_complete, self.configs_incomplete
-    
-    def get_configs_to_do(self):
-        return self.configs_incomplete
-    
-    def get_expConfigs_list(self):
-        return self.expConfigs_list
-    
-    # def get_nb_seeds(self):
-    #     return len(self.seeds_list)
-    
-    # def get_seeds_list(self):
-    #     return self.seeds_list
-    
-
-    def get_hyperparams_ids_list(self):
-        assert self.hyperparams_ids_list is not None
-        return self.hyperparams_ids_list
-    
-    def get_extra_params(self):
-        return self.extraConfig

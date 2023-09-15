@@ -15,15 +15,15 @@ from typing import List
 
 class ExpResults:
     
-    # def __init__(self, expConfig:ExpConfig, extraConfig:ExtraConfig, hyperparams_ids_list:list=None):
-    def __init__(self, expConfig:ExpConfig, extraConfig:ExtraConfig, hyperparams_list:List[Hyperparams]=None):
+    # def __init__(self, exp_config:ExpConfig, extra_config:ExtraConfig, hyperparams_ids_list:list=None):
+    def __init__(self, exp_config:ExpConfig, extra_config:ExtraConfig, hyperparams_list:List[Hyperparams]=None):
         
-        self.expConfig   = expConfig
-        self.extraConfig = extraConfig
-        self.expConfig_path = Paths.RESULTS + "/" + self.expConfig.get_id()
+        self.exp_config   = exp_config
+        self.extra_config = extra_config
+        self.exp_config_path = Paths.RESULTS + "/" + self.exp_config.get_id()
         
         if hyperparams_list is None:
-            hyperparams_ids_list = ExpResults.find_hyperparams_ids_in_dir(self.expConfig_path)
+            hyperparams_ids_list = ExpResults.find_hyperparams_ids_in_dir(self.exp_config_path)
             self.hyperparams_ids_dict = ExpResults.load_hyperparams(hyperparams_ids_list)
         else:
             self.hyperparams_ids_dict = { hyperparams.id:hyperparams for hyperparams in hyperparams_list}
@@ -71,13 +71,13 @@ class ExpResults:
     
     def retrieve_result(self, hyperparams_id:str, criteria:str):
         # conditions that results must verify
-        train_interval_ep = self.extraConfig.get_logger_train_interval_ep()
-        test_interval_ep  = self.extraConfig.get_logger_test_interval_ep()
-        true_nb_eps       = self.expConfig.get_nb_student()
-        eval_frequency    = self.extraConfig.get_eval_frequency()
+        train_interval_ep = self.extra_config.get_logger_train_interval_ep()
+        test_interval_ep  = self.extra_config.get_logger_test_interval_ep()
+        true_nb_eps       = self.exp_config.get_nb_student()
+        eval_frequency    = self.extra_config.get_eval_frequency()
         # if hyperparams_id == "hyperparams23-01-12-02h46min48sec39586-fgCq":
         #     pdb.set_trace()
-        hyperparams_path =  self.expConfig_path+"/"+hyperparams_id
+        hyperparams_path =  self.exp_config_path+"/"+hyperparams_id
         hyperparams_results = Config.build_results_dict(hyperparams_path, with_extra=True)
 
         for date_with_ext, date_results_dict in hyperparams_results.items():
@@ -122,16 +122,16 @@ class ExpResults:
         return copy.deepcopy(self.hyperparams_ids_dict)
     
     def get_corpus_id(self):
-        return self.expConfig.get_corpus_name()
+        return self.exp_config.get_corpus_name()
 
     def get_seed_id(self):
-        return "seed"+str(self.expConfig.get_seed())
+        return "seed"+str(self.exp_config.get_seed())
     
     def get_exp_params_id(self):
-        return self.expConfig.get_id()
+        return self.exp_config.get_id()
     
     def get_exp_params(self):
-        return self.expConfig
+        return self.exp_config
     
     def get_exp_params_structure(self):
-        return self.expConfig.get_structure_path()
+        return self.exp_config.get_structure_path()

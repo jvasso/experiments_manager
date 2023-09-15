@@ -1,3 +1,4 @@
+from genericpath import isfile
 import os
 import yaml
 import json
@@ -16,8 +17,8 @@ def load_yaml_file(filename):
 
 
 def load_json_file(file_path:str):
-    if not file_path.endswith(".json"):
-        file_path += ".json"
+    if not file_path.endswith(".json"): file_path += ".json"
+    if not os.path.isfile(file_path): return None
     with open(file_path, 'r') as json_file:
         data_dict = json.load(json_file)
     return data_dict
@@ -127,6 +128,20 @@ def get_json_filenames(directory, with_ext=True):
                 else:
                     filenames.append(filename.split(".json")[0])
     return filenames
+
+
+def find_all_json_files_in_dir(directory, with_ext=True):
+    if not os.path.isdir(directory):
+        return "Invalid directory path"
+    json_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith('.json'):
+                if with_ext: 
+                    json_files.append(file)
+                else:
+                    json_files.append(file.split(".json")[0])
+    return json_files
 
 
 def get_yaml_filenames(directory):
