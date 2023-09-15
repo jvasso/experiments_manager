@@ -27,7 +27,7 @@ To run an experiment, you simply need to complete these 2 steps:
 • set your experiment
 
 
-#### **Step 1**: set your config files
+### Step 1: set your config files
 
 Configure the settings of your experiment (use a list to run multiple configurations):
 ```yaml
@@ -57,7 +57,7 @@ criteria_complete_result: {"seed":10} # the criteria that must be fulfilled to c
 ```
 
 
-#### Step 2: run your own experiment
+### Step 2: run your own experiment
 
 To run your own experiment, you first need to subclass `Experiment` base class.
 
