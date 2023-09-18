@@ -51,9 +51,9 @@ Other parameters (results, logs, metrics used for the gridsearch etc.):
 log_frequency: 5
 
 # results params (mandatory)
-metrics: {"train_loss", "valid_loss"} # the metrics measured at each experiment
-gridsearch_metric: "valid_loss"       # the metric used for the gridsearch (it will drive the search in the hyperparameter space)
-criteria_complete_result: {"seed":10} # the criteria that must be fulfilled to consider one experiment as complete (--> as many "trials" as values: here, 10 seeds will be tried)
+metrics: {"train_loss", "valid_loss"} # metrics measured at each experiment
+gridsearch_metric: "valid_loss"       # metric used for the gridsearch (it will drive the search in the hyperparameter space)
+criteria_complete_result: {"seed":10} # criteria that must be fulfilled to consider one experiment as complete (--> as many "trials" as values: here, 10 seeds will be tried)
 ```
 
 
@@ -63,9 +63,10 @@ To run your own experiment, you first need to subclass `Experiment` base class.
 
 ```python
 from experiments_manager.experiment import Experiment
+from experiments_manager.config import ConfigManager
+from experiments_manager.experiment import ExperimentManager
 
 class CustomExperiment(Experiment):
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -77,18 +78,11 @@ class CustomExperiment(Experiment):
         loss = self.config.exp_config.loss
 
         model = MyModel(num_layers=num_layers, activation=activation)
-        results = model.train(loss=loss) # assert results = {"train_loss":..., "valid_loss":...}
+        results = model.train(loss=loss)
         return result
-```
-
-Then you can write the following code to run all the configurations and save results.
-
-```python
-from experiments_manager.config import ConfigManager
-from experiments_manager.experiment import ExperimentManager
 
 configManager = ConfigManager()
 experimentManager = ExperimentManager(configManager, experiment_cls=CustomExperiment)
 experimentManager.run_experiments()
-
+results = experimentManager.compare_results(metrics=["valid_loss"])
 ```

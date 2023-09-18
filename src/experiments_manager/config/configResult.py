@@ -51,6 +51,7 @@ class ConfigResult:
         result_dict = self.load_results()
         if result_dict is not None:
             self.metric2metric_id = result_dict["infos"]["metrics"]
+            self.metric_id2metric = {value:key for key,value in self.metric2metric_id.items()}
             self._is_empty = True if self.metric_of_interest not in self.metric2metric_id.keys() else False
         else:
             result_dict = self.initialize_results_file()
@@ -63,6 +64,7 @@ class ConfigResult:
         self._is_new   = True
         self._is_empty = True
         self.metric2metric_id = results["infos"]["metrics"]
+        self.metric_id2metric = {value:key for key,value in self.metric2metric_id.items()}
         return results
 
     
@@ -128,6 +130,35 @@ class ConfigResult:
                 incomplete_level_keys = incomplete_level_keys + [ {**current_dict, key:expected_key} for current_dict in incomplete_level_subkeys ]
         return incomplete_level_keys
     
+
+    def merge_accross_trials(self, trial_params="all", metrics="all", stats=["mean", "std"]):
+        results = self.load_results()
+        if metrics == "all":
+            metrics = results["infos"]["metrics"]
+        else:
+            for metric in metrics: assert metric in results["infos"]["metrics"]
+        metrics_ids = [self.metric2metric_id[metric] for metric in metrics]
+        merged_results = { metric:[] for metric in metrics }
+        results_stats = { metric:{} for metric in metrics }
+        if trial_params=="all":
+            for root, dirs, metric2val_list in utils_dict.walk_tree(results["data"]):
+                if type(metric2val_list)==list:
+                    for id2val_tuple in metric2val_list:
+                        metric_id, val = id2val_tuple
+                        if metric_id in metrics_ids:
+                            merged_results[self.metric_id2metric[metric_id]].append(val)
+        else:
+            raise Exception("Not implemented.")
+        for metric, vals_list in merged_results.items():
+            results_stats[metric] = {stat_name: round(ConfigResult.stat_name2func(stat_name)(vals_list),3) for stat_name in stats}
+        return merged_results, results_stats
+    
+
+    @staticmethod
+    def stat_name2func(stat_name):
+        stat_dict = {"mean":np.mean, "std":np.std}
+        return stat_dict[stat_name]
+
 
     def is_incomplete(self, level_dict, expected_key):
         if expected_key not in level_dict.keys():
