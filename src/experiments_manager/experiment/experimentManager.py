@@ -4,6 +4,8 @@ from typing import Type, List
 import time
 from datetime import timedelta
 
+from sklearn import metrics
+
 from ..config import Config
 from ..config import ConfigManager
 from .experiment import Experiment
@@ -21,23 +23,24 @@ class ExperimentManager:
     
     
     def run_experiments(self, hyperparam_optimizer=None, num_trials:int=None):
-        if self.verbose>=1: print("\nRUNNING EXPERIMENTS")
         if hyperparam_optimizer is not None:
             raise Exception("not implemented")
             self.optimize_hyperparams(hyperparam_optimizer, num_trials=num_trials)
         else:
-            self.num_configs = len(self.configManager.partially_completed_configs)+len(self.configManager.incomplete_configs)
+            self.num_configs_to_run = len(self.configManager.partially_completed_configs)+len(self.configManager.incomplete_configs)
             start_time = time.time()
 
-            if self.verbose>=2: print("\nRunning partiallly completed configs")
-            self.run_configs(self.configManager.partially_completed_configs, save_results=True)
-            
-            if self.verbose>=2: print("\nRunning new configs")
-            self.run_configs(self.configManager.incomplete_configs, save_results=True)
+            if self.num_configs_to_run > 0:
+                if self.verbose>=1: print("\nRUNNING EXPERIMENTS")
+                if self.verbose>=2: print("\nRunning partiallly completed configs")
+                self.run_configs(self.configManager.partially_completed_configs, save_results=True)
+                
+                if self.verbose>=2: print("\nRunning new configs")
+                self.run_configs(self.configManager.incomplete_configs, save_results=True)
 
             end_time = time.time()
             total_time = timedelta(seconds=end_time - start_time)
-            if self.verbose>=1: print("\n"+str(self.num_configs)+ " configs executed in "+str(total_time))
+            if self.verbose>=1: print("\n"+str(self.num_configs_to_run)+ " configs executed in "+str(total_time))
 
 
     def run_configs(self, configs_list:List[Config], save_results=True, verbose=False):
@@ -48,6 +51,17 @@ class ExperimentManager:
             if self.verbose >= 3: config.display_config_infos()
             experiment = self.experiment_cls(config)
             experiment._run_exp(save_results=save_results)
+    
+
+    def compare_results(self, metrics:list):
+        merged_result = {}
+        for exp_config in self.configManager.exp_config_list:
+            merged_result[exp_config.id] = {hyperparam.id:None for hyperparam in self.configManager.hyperparams_list}
+        for config in self.configManager.configs_list:
+            assert type(config)==Config
+            config_result, config_stats = config.merge_trial_results(metrics=metrics)
+            merged_result[config.exp_config.id][config.hyperparams.id] = config_stats
+        return merged_result
     
     
     def optimize_hyperparams(self, optimizer, num_trials=100, verbose=True):
@@ -66,7 +80,7 @@ class ExperimentManager:
                 config = self.configManager.get_config(hyperparam_id=hyperparam_id, exp_config_id=exp_config_id)
                 experiment = self.experiment_cls(config)
                 results, exp_infos = experiment._run_exp()
-    
+        
     
     def preprocess_search_space(self, search_space):
         return search_space

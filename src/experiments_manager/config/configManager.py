@@ -16,6 +16,10 @@ from ..utils import utils_files as utils_files
 class ConfigManager:
 
     PARTIALLY_COMPLETE_THRESHOLD = 0.5
+
+    IDS = "ids/"
+    CONFIG_STORE = "config_store/"
+    RESULTS = "results/"
     
     def __init__(self,
                  project_path:str=".",
@@ -27,6 +31,7 @@ class ConfigManager:
                  exp_config_ids_list:list=None,
                  verbose_level:int=0):
         ConfigManager._set_paths(project_path)
+        ConfigManager._configure_project(project_path)
         self.verbose = verbose_level
         if self.verbose >= 1: print("\nINITIALIZE ConfigManager")
         if (hyperparams_ids_list is not None):
@@ -38,7 +43,7 @@ class ConfigManager:
             self.standard_init(hyperparams_cls, exp_config_cls, extra_config_cls, config_cls)
 
     
-    def standard_init(self, hyperparams_cls, exp_config_cls, extra_config_cls, config_cls:Type[Config]=Config, verbose=False):
+    def standard_init(self, hyperparams_cls, exp_config_cls, extra_config_cls, config_cls:Type[Config]=Config):
         self.hyperparams_ids_list = None
         raw_hyperparams, raw_exp_config, raw_extra_config = self.load_config()
         self.hyperparams_list = self.preprocess_hyperparams(raw_hyperparams, hyperparams_cls)
@@ -46,9 +51,10 @@ class ConfigManager:
         self.extra_config     = self.preprocess_extra_config(raw_extra_config, extra_config_cls)
         
         self.completed_configs, self.partially_completed_configs, self.incomplete_configs = self.classify_configs(config_cls)
-        self.num_configs = len(self.completed_configs)+len(self.partially_completed_configs)+len(self.incomplete_configs)
+        self.configs_list = self.completed_configs + self.partially_completed_configs + self.incomplete_configs
+        self.num_configs = len(self.configs_list)
         self.hyperparams_ids_list = [ hyperparam.id for hyperparam in self.hyperparams_list ]
-        if verbose: self.print_report()
+        if self.verbose>=1: self.print_report()
     
     
     def init_from_hyperparams_ids(self, hyperparams_ids_list, exp_config_cls):
@@ -157,12 +163,12 @@ class ConfigManager:
             for hyperparams in self.hyperparams_list:
                 if self.verbose >= 2: print("• Config "+str(config_idx+1)+"/"+str(num_configs))
                 config = config_cls(hyperparams=hyperparams, exp_config=exp_config, extra_config=self.extra_config, verbose=self.verbose)
-                result_progress = config.check_result_progress()
+                result_progress, num_remaining = config.check_result_progress()
                 if result_progress == 1:
                     if self.verbose >= 2: print("Already completed.")
                     completed_configs.append(config)
                 elif result_progress >= ConfigManager.PARTIALLY_COMPLETE_THRESHOLD:
-                    if self.verbose >= 2: print("Partially completed.")
+                    if self.verbose >= 2: print("Partially completed ("+str(num_remaining) + " remaining trials).")
                     partially_completed_configs.append(config)
                 else:
                     if self.verbose >= 2: print("Not completed.")
@@ -204,10 +210,17 @@ class ConfigManager:
         cls.EXTRA_CONFIG_PATH = cls.CONFIG_PATH  + "/extra_config"
     
 
+    @staticmethod
+    def _configure_project(project_path):
+        utils_files.create_folder(project_path + "/" + ConfigManager.IDS)
+        utils_files.create_folder(project_path + "/" + ConfigManager.CONFIG_STORE)
+        utils_files.create_folder(project_path + "/" + ConfigManager.RESULTS)
+    
+
     def print_report(self):
-        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        print("Config Manager report:\n")
-        print("• "+str(len(self.exp_config_ids_list)) + " experiment configs")
-        print("• "+str(len(self.hyperparams_list)) + " hyperparameter configs")
-        print("• "+str(len(self.num_configs)) + " configs ("+str(len(self.completed_configs)) + " completed, "+str(len(self.partially_completed_configs)) + " partially, "+str(len(self.incomplete_configs)) + " incomplete)")
-        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+        print("\n~~~~~~~~~~~~~~~~~~~")
+        print("ConfigManager report:\n")
+        print("• "+str(len(self.exp_config_list)) + " experimental configurations")
+        print("• "+str(len(self.hyperparams_list)) + " hyperparameter configurations")
+        print("• "+str(self.num_configs) + " configs ("+str(len(self.completed_configs)) + " already completed, "+str(len(self.partially_completed_configs)) + " partially completed, "+str(len(self.incomplete_configs)) + " new)")
+        print("~~~~~~~~~~~~~~~~~~~\n")

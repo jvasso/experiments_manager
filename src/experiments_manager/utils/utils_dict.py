@@ -259,3 +259,27 @@ def generate_dict_paths(tree, current_path=None):
         else:
             paths.append(new_path)
     return paths
+
+
+def walk_tree(tree_dict, parent_key=None):
+    if not isinstance(tree_dict, dict):
+        return
+    directories = []
+    files = []
+    for key, value in tree_dict.items():
+        if isinstance(value, dict):
+            directories.append(key)
+        else:
+            files.append((key, value))
+    yield parent_key, directories, files
+    for directory in directories:
+        yield from walk_tree(tree_dict[directory], directory)
+
+
+def pretty_print_dict(d, indent=0):
+    for key, value in d.items():
+        if isinstance(value, dict):
+            print('  ' * indent + str(key) + ':')
+            pretty_print_dict(value, indent+1)
+        else:
+            print('  ' * indent + "• " + str(key) + ": " +str(value))

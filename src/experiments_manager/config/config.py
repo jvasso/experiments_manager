@@ -95,10 +95,15 @@ class Config(ABC):
         return results
     
 
+    def merge_trial_results(self, trial_params="all", metrics="all"):
+        results, results_stats = self.config_result.merge_accross_trials(trial_params=trial_params, metrics=metrics)
+        return results, results_stats
+    
+
     def check_result_progress(self):
         expected_trial_params  = self.config_result.num_expected_trials
         remaining_trial_params = len(self.config_result.search_remaining_trial_params())
-        return 1 - remaining_trial_params/expected_trial_params
+        return 1 - remaining_trial_params/expected_trial_params, remaining_trial_params
 
 
     def is_complete(self):
