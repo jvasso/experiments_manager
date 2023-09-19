@@ -7,7 +7,7 @@ import pprint
 import time
 
 import pdb
-
+print('o,')
 
 def dict2hash(dict1):
     # hex_dig = hashlib.sha256(json.dumps(dict1, sort_keys=True).encode()).hexdigest()
