@@ -5,9 +5,22 @@ This repo is a toolkit to manage ML experiments.
 It allows to organize hyperparameters and experiments configurations, load and save results, and perform hyperparameter search using some optimization algorithm.
 
 
+## Installation
+
+To install the latest stable version, run the following:
+```bash
+pip install experiments-manager
+```
+
+Install the latest version, run the following:
+```bash
+pip install git+https://github.com/jvasso/experiments_manager
+```
+
+
 ## Quickstart
 
-This is the basic tree structure of a project with our framework.
+This is the basic tree structure of a project with experiments-manager.
 
 ```bash
 ├── main.py
@@ -59,7 +72,8 @@ criteria_complete_result: {"seed":10} # criteria that must be fulfilled to consi
 
 ### Step 2: run your own experiment
 
-To run your own experiment, you first need to subclass `Experiment` base class.
+To run your own experiment, you just need to subclass the `Experiment` base class.
+
 
 ```python
 from experiments_manager.experiment import Experiment

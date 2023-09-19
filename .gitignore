@@ -5,3 +5,5 @@ __pycache__/
 ids/
 results/
 src/experiments_manager/results/
+src/experiments_manager.egg-info/
+dist/
