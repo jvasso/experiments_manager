@@ -4,8 +4,6 @@ from typing import Type, List
 import time
 from datetime import timedelta
 
-from sklearn import metrics
-
 from ..config import Config
 from ..config import ConfigManager
 from .experiment import Experiment
