@@ -31,24 +31,24 @@ class ExperimentManager:
             if self.num_configs_to_run > 0:
                 if self.verbose>=1: print("\nRUNNING EXPERIMENTS")
                 if self.verbose>=2: print("\nRunning partiallly completed configs")
-                self.run_configs(self.configManager.partially_completed_configs, save_results=True)
+                self.run_configs(self.configManager.partially_completed_configs)
                 
                 if self.verbose>=2: print("\nRunning new configs")
-                self.run_configs(self.configManager.incomplete_configs, save_results=True)
+                self.run_configs(self.configManager.incomplete_configs)
 
             end_time = time.time()
             total_time = timedelta(seconds=end_time - start_time)
             if self.verbose>=1: print("\n"+str(self.num_configs_to_run)+ " configs executed in "+str(total_time))
 
 
-    def run_configs(self, configs_list:List[Config], save_results=True, verbose=False):
+    def run_configs(self, configs_list:List[Config], verbose=False):
         num_configs = len(configs_list)
         for idx in range(num_configs):
             config = configs_list[idx]
             if self.verbose >= 2: print("• Config "+str(idx+1)+"/"+str(num_configs))
             if self.verbose >= 3: config.display_config_infos()
             experiment = self.experiment_cls(config)
-            experiment._run_exp(save_results=save_results)
+            experiment._run_exp()
     
 
     def compare_results(self, metrics:list):

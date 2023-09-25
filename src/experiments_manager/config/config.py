@@ -22,7 +22,7 @@ class Config(ABC):
         self.exp_config   = exp_config
         self.extra_config = extra_config
         self.verbose = verbose
-
+        
         self.results_folder_path = self.build_results_folder_path()
         self.config_result = self.search_existing_results()
     
@@ -30,7 +30,7 @@ class Config(ABC):
     def display_config_infos(self):
         pass
     
-
+    
     def save_trial_result(self, new_result, trial_params):
         self.config_result.save_trial_results(new_result, trial_params)
 

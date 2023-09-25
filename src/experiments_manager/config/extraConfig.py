@@ -8,6 +8,9 @@ class ExtraConfig:
     MODULES_EXTRA_CONFIG = Paths.MODULES + "/extra_config"
     EXTRA_CONFIG_MODULES_CONNECTOR = {}
 
+    SAVE_RESULTS_KEY = "save_results"
+    SAVE_MODEL_KEY = "save_model"
+
     def __init__(self, raw_extra_config):
         self.extra_config_dict = ExtraConfig.preprocess_params(raw_extra_config)
         self.assign_attributes()

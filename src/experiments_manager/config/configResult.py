@@ -20,7 +20,6 @@ class ConfigResult:
     result_loader = {".json":utils_files.load_json_file, ".pkl":utils_files.load_pickle_file}
     result_saver  = {".json":utils_files.save_json_dict_to_path, ".pkl":utils_files.save_pickle_dict_to_path}
 
-
     def __init__(self, extra_config:Type[ExtraConfig], results_dir:str, id:str=None):
         self.extra_config = extra_config
         self.metric_of_interest = self.extra_config[ConfigResult.EXTRACONFIG_CRITERIA_KEY]
