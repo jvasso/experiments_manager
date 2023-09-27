@@ -69,6 +69,9 @@ class ExpConfig(ABC):
                     if hasattr(self, key):
                         raise Exception(f"Attribute '{key}' already exists!")
                 setattr(self, key, value)
+    
+    def __getitem__(self, name):
+        return self.__dict__.get(name, None)
 
     
     def save_exp_config(self, id):

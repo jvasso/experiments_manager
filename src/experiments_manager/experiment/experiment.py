@@ -10,13 +10,13 @@ class Experiment(ABC):
         assert type(config)==Config
         self.config = config
 
-        if ExtraConfig.SAVE_RESULTS_KEY in self.config.extra_config:
-            self._save_results = self.config.extra_config["save_results"]
+        if ExtraConfig.SAVE_RESULTS_KEY in self.config.extra_config.__dict__().keys():
+            self._save_results = self.config.extra_config[ExtraConfig.SAVE_RESULTS_KEY]
         else:
             self._save_results = True
         
-        if ExtraConfig.SAVE_MODEL_KEY in self.config.extra_config:
-            self._save_model = self.config.extra_config["save_model"]
+        if ExtraConfig.SAVE_MODEL_KEY in self.config.extra_config.__dict__().keys():
+            self._save_model = self.config.extra_config[ExtraConfig.SAVE_MODEL_KEY]
         else:
             self._save_model = False
     

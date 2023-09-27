@@ -67,6 +67,9 @@ class Hyperparams(ABC):
                         raise Exception(f"Attribute '{key}' already exists!")
                 setattr(self, key, value)
     
+    def __getitem__(self, name):
+        return self.__dict__.get(name, None)
+    
 
     @staticmethod
     def assign_id(hyperparams_dict):
