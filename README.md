@@ -18,7 +18,7 @@ pip install git+https://github.com/jvasso/experiments_manager
 ```
 
 
-## Quickstart
+## Basic usage
 
 This is the basic structure of a project with experiments-manager:
 
