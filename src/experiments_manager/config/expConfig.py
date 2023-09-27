@@ -70,8 +70,12 @@ class ExpConfig(ABC):
                         raise Exception(f"Attribute '{key}' already exists!")
                 setattr(self, key, value)
     
+
     def __getitem__(self, name):
         return self.__dict__.get(name, None)
+
+    def __contains__(self, item):
+        return item in self.__dict__
 
     
     def save_exp_config(self, id):
