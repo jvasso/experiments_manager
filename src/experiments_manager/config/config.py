@@ -5,9 +5,9 @@ from ..utils import utils_dict as utils_dict
 from ..utils import utils_files as utils_files
 
 from .hyperparams import Hyperparams
-from .expConfig import ExpConfig
-from .extraConfig import ExtraConfig
-from .configResult import ConfigResult
+from .exp_config import ExpConfig
+from .extra_config import ExtraConfig
+from .config_result import ConfigResult
 from ..paths import Paths
 
 

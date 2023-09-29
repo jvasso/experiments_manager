@@ -1,6 +1,6 @@
 
 from .config import Config
-from .configManager import ConfigManager
-from .expConfig import ExpConfig
-from .extraConfig import ExtraConfig
+from .config_manager import ConfigManager
+from .exp_config import ExpConfig
+from .extra_config import ExtraConfig
 from .hyperparams import Hyperparams
