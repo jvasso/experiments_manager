@@ -38,7 +38,7 @@ class ConfigResult:
         self.result_file_path = self.result_folder_path + "/results" + ConfigResult.RESULT_EXT
         self._is_new   = True
         self._is_empty = True
-        utils_files.create_folder(self.result_folder_path)
+        utils_files.maybe_create_folder(self.result_folder_path)
         self.initialize_results_file()
     
 

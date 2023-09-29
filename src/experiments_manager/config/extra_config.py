@@ -1,11 +1,11 @@
 
-from ..paths import Paths
+from .config_manager import ConfigManager
 from ..utils import utils_dict as utils_dict
 
 
 class ExtraConfig:
 
-    MODULES_EXTRA_CONFIG = Paths.MODULES + "/extra_config"
+    MODULES_EXTRA_CONFIG = ConfigManager.CONFIG_MODULES_PATH + "/extra_config"
     EXTRA_CONFIG_MODULES_CONNECTOR = {}
 
     SAVE_RESULTS_KEY = "save_results"

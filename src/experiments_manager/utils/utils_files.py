@@ -74,7 +74,7 @@ def search_pickle_in_dir(dir_path):
         raise Exception("Error: multiple files found in "+dir_path)
 
 
-def create_folder(dir_path):
+def maybe_create_folder(dir_path):
     if not os.path.isdir(dir_path):
         os.makedirs(dir_path)
 

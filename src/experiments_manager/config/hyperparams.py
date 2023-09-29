@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 
+from .config_manager import ConfigManager
+
 from ..utils import utils_dict as utils_dict
 from ..utils import utils_files as utils_files
 
-from ..paths import Paths
 
 class Hyperparams(ABC):
 
-    IDS = Paths.IDS + "/hyperparams"
+    IDS = ConfigManager.IDS_PATH + "/hyperparams"
     IDS_EXT = ".json"
     STRUCTURE = []
 

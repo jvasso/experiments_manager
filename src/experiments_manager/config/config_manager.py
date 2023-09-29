@@ -16,10 +16,6 @@ from ..utils import utils_files as utils_files
 class ConfigManager:
 
     PARTIALLY_COMPLETE_THRESHOLD = 0.5
-
-    IDS = "ids/"
-    CONFIG_STORE = "config_store/"
-    RESULTS = "results/"
     
     def __init__(self,
                  project_path:str=".",
@@ -203,8 +199,12 @@ class ConfigManager:
 
     @classmethod
     def _set_paths(cls, project_path):
-        cls.PROJECT_PATH      = project_path
-        cls.CONFIG_PATH       = cls.PROJECT_PATH + "/config"
+        cls.PROJECT_PATH        = project_path
+        cls.CONFIG_PATH         = cls.PROJECT_PATH + "/config"
+        cls.IDS_PATH            = cls.PROJECT_PATH + "/ids"
+        cls.RESULTS_PATH        = cls.PROJECT_PATH + "/results"
+        cls.CONFIG_MODULES_PATH = cls.PROJECT_PATH + "/config_modules"
+
         cls.HYPERPARAMS_PATH  = cls.CONFIG_PATH  + "/hyperparams"
         cls.EXP_CONFIG_PATH   = cls.CONFIG_PATH  + "/exp_config"
         cls.EXTRA_CONFIG_PATH = cls.CONFIG_PATH  + "/extra_config"
@@ -212,9 +212,9 @@ class ConfigManager:
 
     @staticmethod
     def _configure_project(project_path):
-        utils_files.create_folder(project_path + "/" + ConfigManager.IDS)
-        utils_files.create_folder(project_path + "/" + ConfigManager.CONFIG_STORE)
-        utils_files.create_folder(project_path + "/" + ConfigManager.RESULTS)
+        utils_files.maybe_create_folder(project_path + "/" + ConfigManager.IDS_PATH)
+        utils_files.maybe_create_folder(project_path + "/" + ConfigManager.CONFIG_MODULES_PATH)
+        utils_files.maybe_create_folder(project_path + "/" + ConfigManager.RESULTS_PATH)
     
 
     def print_report(self):

@@ -1,17 +1,17 @@
 from abc import ABC, abstractmethod
 
+from .config_manager import ConfigManager
+
 from ..utils import utils_dict as utils_dict
 from ..utils import utils_files as utils_files
-
-from ..paths import Paths
 
 
 class ExpConfig(ABC):
 
-    IDS = Paths.IDS + "/exp_config"
+    IDS = ConfigManager.IDS_PATH + "/exp_config"
     ID_EXT = ".json"
     STRUCTURE = []
-    MODULES = Paths.MODULES + "/exp_config"
+    MODULES = ConfigManager.CONFIG_MODULES_PATH + "/exp_config"
     MODULES_CONNECTOR = {}
 
     def __init__(self, raw_exp_config_dict:dict, path=None, id=None):
