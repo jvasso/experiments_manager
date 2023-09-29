@@ -2,6 +2,7 @@ import json
 import hashlib
 from itertools import product
 from typing import List
+import copy
 
 from . import utils_files
 
@@ -283,3 +284,14 @@ def pretty_print_dict(d, indent=0):
             pretty_print_dict(value, indent+1)
         else:
             print('  ' * indent + "• " + str(key) + ": " +str(value))
+
+
+def merge_subdicts(dicts_list:List[dict], key:str):
+    assert isinstance(dicts_list, list) and all( isinstance(d, dict) or isinstance(d.__dict__, dict) for d in dicts_list)
+    assert isinstance(key, str)
+    accepted_dicts = [ current_dict for current_dict in dicts_list if (key in current_dict)]
+    merged_dict = {}
+    for current_dict in accepted_dicts:
+        assert isinstance(current_dict[key], dict), "The entry '"+key+"' should be a dictionary."
+        merged_dict.update(copy.deepcopy(current_dict[key]))
+    return merged_dict
