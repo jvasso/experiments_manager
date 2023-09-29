@@ -67,13 +67,6 @@ class Hyperparams(ABC):
                         raise Exception(f"Attribute '{key}' already exists!")
                 setattr(self, key, value)
     
-    
-    def __getitem__(self, name):
-        return self.__dict__.get(name, None)
-    
-    def __contains__(self, item):
-        return item in self.__dict__
-    
 
     @staticmethod
     def assign_id(hyperparams_dict):
@@ -118,3 +111,16 @@ class Hyperparams(ABC):
     
     def print_pretty(self):
         utils_dict.print_dict_pretty(self.hyperparams_dict)
+    
+
+    def __getitem__(self, name):
+        return self.__dict__.get(name, None)
+    
+    def __contains__(self, item):
+        return item in self.__dict__
+    
+    def get(self, key, default=None):
+        if key in self:  # This uses the __contains__ method
+            return self[key]  # This uses the __getitem__ method
+        else:
+            return default

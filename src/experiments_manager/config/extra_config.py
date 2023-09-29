@@ -43,3 +43,9 @@ class ExtraConfig:
     
     def __contains__(self, item):
         return item in self.__dict__
+    
+    def get(self, key, default=None):
+        if key in self:  # This uses the __contains__ method
+            return self[key]  # This uses the __getitem__ method
+        else:
+            return default

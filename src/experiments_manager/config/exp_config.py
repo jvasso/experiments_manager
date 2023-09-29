@@ -69,19 +69,11 @@ class ExpConfig(ABC):
                     if hasattr(self, key):
                         raise Exception(f"Attribute '{key}' already exists!")
                 setattr(self, key, value)
-    
-
-    def __getitem__(self, name):
-        return self.__dict__.get(name, None)
-
-    def __contains__(self, item):
-        return item in self.__dict__
-
+        
     
     def save_exp_config(self, id):
         file_path = self.get_id_path()
         utils_files.save_json_dict_to_path(file_path, self.exp_config_dict)
-    
 
     def get_id_path(self):
         return ExpConfig.IDS+"/"+self.structure_path + ExpConfig.ID_EXT
@@ -94,3 +86,16 @@ class ExpConfig(ABC):
     
     def pretty_print(self):
         utils_dict.print_dict_pretty(self.exp_config_dict)
+
+    
+    def __getitem__(self, name):
+        return self.__dict__.get(name, None)
+
+    def __contains__(self, item):
+        return item in self.__dict__
+    
+    def get(self, key, default=None):
+        if key in self:  # This uses the __contains__ method
+            return self[key]  # This uses the __getitem__ method
+        else:
+            return default
