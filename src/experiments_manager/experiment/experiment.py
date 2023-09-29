@@ -37,7 +37,7 @@ class Experiment(ABC):
 
     @abstractmethod
     def run_exp(self, trial_params=None):
-        pass
+        raise NotImplementedError
     
     def save_model(self, model, path):
         raise Exception("You must implement the save_model method to be able to save the model.")
