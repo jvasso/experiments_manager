@@ -5,7 +5,7 @@ from ..utils import utils_dict as utils_dict
 
 class ExtraConfig:
 
-    MODULES_EXTRA_CONFIG = ConfigManager.CONFIG_MODULES_PATH + "/extra_config"
+    MODULES = ConfigManager.CONFIG_MODULES_PATH + "/extra_config"
     EXTRA_CONFIG_MODULES_CONNECTOR = {}
 
     SAVE_RESULTS_KEY = "save_results"

@@ -9,6 +9,7 @@ from ..utils import utils_files as utils_files
 class Hyperparams(ABC):
 
     IDS = ConfigManager.IDS_PATH + "/hyperparams"
+    MODULES = ConfigManager.CONFIG_MODULES_PATH + "/hyperparams"
     IDS_EXT = ".json"
     STRUCTURE = []
 

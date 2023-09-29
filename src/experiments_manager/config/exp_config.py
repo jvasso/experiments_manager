@@ -7,7 +7,7 @@ from ..utils import utils_files as utils_files
 
 
 class ExpConfig(ABC):
-
+    
     IDS = ConfigManager.IDS_PATH + "/exp_config"
     ID_EXT = ".json"
     STRUCTURE = []
