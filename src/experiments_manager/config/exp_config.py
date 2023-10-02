@@ -64,6 +64,7 @@ class ExpConfig(ABC):
     def assign_attributes(self, input_dict, distinction:str=None):
         for key, value in input_dict.items():
             if isinstance(value, dict):
+                setattr(self, key, value)
                 self.assign_attributes(value, distinction=key)
             else:
                 if hasattr(self, key):
