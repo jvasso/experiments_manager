@@ -9,6 +9,8 @@ from .exp_config import ExpConfig
 from .extra_config import ExtraConfig
 from .config import Config
 
+from ..path_manager import PathManager
+
 from ..utils import utils_dict as utils_dict
 from ..utils import utils_files as utils_files
 
@@ -16,6 +18,13 @@ from ..utils import utils_files as utils_files
 class ConfigManager:
 
     PARTIALLY_COMPLETE_THRESHOLD = 0.5
+    
+    @classmethod
+    def _set_paths(cls):
+        cls.HYPERPARAMS_PATH  = PathManager.CONFIG_PATH  + "/hyperparams"
+        cls.EXP_CONFIG_PATH   = PathManager.CONFIG_PATH  + "/exp_config"
+        cls.EXTRA_CONFIG_PATH = PathManager.CONFIG_PATH  + "/extra_config"
+    
     
     def __init__(self,
                  project_path:str=".",
@@ -26,8 +35,8 @@ class ConfigManager:
                  hyperparams_ids_list:list=None,
                  exp_config_ids_list:list=None,
                  verbose_level:int=0):
-        ConfigManager._set_paths(project_path)
-        ConfigManager._configure_project(project_path)
+        PathManager._configure_project(project_path)
+        ConfigManager._set_paths()
         self.verbose = verbose_level
         if self.verbose >= 1: print("\nINITIALIZE ConfigManager")
         if (hyperparams_ids_list is not None):
@@ -195,26 +204,6 @@ class ConfigManager:
         for sub_dir in sub_dirs:
             hyperparams[sub_dir] = ConfigManager.get_hyperparams(dir+"/"+sub_dir)
         return hyperparams
-    
-
-    @classmethod
-    def _set_paths(cls, project_path):
-        cls.PROJECT_PATH        = project_path
-        cls.CONFIG_PATH         = cls.PROJECT_PATH + "/config"
-        cls.IDS_PATH            = cls.PROJECT_PATH + "/ids"
-        cls.RESULTS_PATH        = cls.PROJECT_PATH + "/results"
-        cls.CONFIG_MODULES_PATH = cls.PROJECT_PATH + "/config_modules"
-
-        cls.HYPERPARAMS_PATH  = cls.CONFIG_PATH  + "/hyperparams"
-        cls.EXP_CONFIG_PATH   = cls.CONFIG_PATH  + "/exp_config"
-        cls.EXTRA_CONFIG_PATH = cls.CONFIG_PATH  + "/extra_config"
-    
-
-    @staticmethod
-    def _configure_project(project_path):
-        utils_files.maybe_create_folder(project_path + "/" + ConfigManager.IDS_PATH)
-        utils_files.maybe_create_folder(project_path + "/" + ConfigManager.CONFIG_MODULES_PATH)
-        utils_files.maybe_create_folder(project_path + "/" + ConfigManager.RESULTS_PATH)
     
 
     def print_report(self):

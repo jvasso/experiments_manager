@@ -1,19 +1,22 @@
 from abc import ABC, abstractmethod
 
-from .config_manager import ConfigManager
-
 from ..utils import utils_dict as utils_dict
 from ..utils import utils_files as utils_files
+from ..path_manager import PathManager
 
 
 class Hyperparams(ABC):
 
-    IDS = ConfigManager.IDS_PATH + "/hyperparams"
-    MODULES = ConfigManager.CONFIG_MODULES_PATH + "/hyperparams"
     IDS_EXT = ".json"
     STRUCTURE = []
 
+    @classmethod
+    def _set_paths(cls):
+        cls.IDS     = PathManager.IDS_PATH + "/hyperparams"
+        cls.MODULES = PathManager.CONFIG_MODULES_PATH + "/hyperparams"
+
     def __init__(self, hyperparams_dict:dict=None, id:str=None):
+        self._set_paths()
         if (id is not None) and (hyperparams_dict is not None):
             self.easy_init(hyperparams_dict, id)
         elif (id is not None):

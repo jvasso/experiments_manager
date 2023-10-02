@@ -1,21 +1,23 @@
 from abc import ABC, abstractmethod
 
-from .config_manager import ConfigManager
-
+from ..path_manager import PathManager
 from ..utils import utils_dict as utils_dict
 from ..utils import utils_files as utils_files
 
 
 class ExpConfig(ABC):
     
-    IDS = ConfigManager.IDS_PATH + "/exp_config"
     ID_EXT = ".json"
     STRUCTURE = []
-    MODULES = ConfigManager.CONFIG_MODULES_PATH + "/exp_config"
     MODULES_CONNECTOR = {}
 
+    @classmethod
+    def _set_paths(cls):
+        cls.IDS     = PathManager.IDS_PATH + "/exp_config"
+        cls.MODULES = PathManager.CONFIG_MODULES_PATH + "/exp_config"
+    
     def __init__(self, raw_exp_config_dict:dict, path=None, id=None):
-        
+        ExpConfig._set_paths()
         if path is not None:
             self.init_from_path(path)
         elif id is not None:

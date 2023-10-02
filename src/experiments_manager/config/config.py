@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from ..utils import utils_dict as utils_dict
 from ..utils import utils_files as utils_files
 
-from .config_manager import ConfigManager
+from ..path_manager import PathManager
 from .hyperparams import Hyperparams
 from .exp_config import ExpConfig
 from .extra_config import ExtraConfig
@@ -81,7 +81,7 @@ class Config(ABC):
         structures_paths_dict = {"hyperparams":self.hyperparams.get_structure_path(), "exp_config":self.exp_config.get_structure_path()}
         path_list = [ structures_paths_dict[key] for key in Config.STRUCTURE ]
         structure_path = "/".join(path_list)
-        results_folder_path = ConfigManager.RESULTS_PATH +"/"+ structure_path
+        results_folder_path = PathManager.RESULTS_PATH +"/"+ structure_path
         return results_folder_path
     
 

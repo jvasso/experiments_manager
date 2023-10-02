@@ -1,17 +1,19 @@
 
-from .config_manager import ConfigManager
 from ..utils import utils_dict as utils_dict
-
+from ..path_manager import PathManager
 
 class ExtraConfig:
 
-    MODULES = ConfigManager.CONFIG_MODULES_PATH + "/extra_config"
     EXTRA_CONFIG_MODULES_CONNECTOR = {}
-
     SAVE_RESULTS_KEY = "save_results"
     SAVE_MODEL_KEY = "save_model"
 
+    @classmethod
+    def _set_paths(cls):
+        cls.MODULES = PathManager.CONFIG_MODULES_PATH + "/extra_config"
+
     def __init__(self, raw_extra_config):
+        ExtraConfig._set_paths()
         self.extra_config_dict = ExtraConfig.preprocess_params(raw_extra_config)
         self.assign_attributes()
     
