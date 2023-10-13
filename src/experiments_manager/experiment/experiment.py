@@ -7,7 +7,7 @@ from ..config import ExtraConfig
 class Experiment(ABC):
     
     def __init__(self, config:Config):
-        assert type(config)==Config
+        assert isinstance(config, Config)
         self.config = config
 
         if ExtraConfig.SAVE_RESULTS_KEY in self.config.extra_config.__dict__.keys():

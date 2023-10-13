@@ -24,8 +24,8 @@ class ExtraConfig:
         if self._assign_attributes: self.assign_attributes()
     
 
-    def __getitem__(self, key):
-        return self.extra_config_dict[key]
+    # def __getitem__(self, key):
+    #     return self.extra_config_dict[key]
     
     
     @staticmethod
