@@ -147,13 +147,13 @@ class ConfigManager:
         if self.verbose>=1: print("Preprocessing experiment configs...")
         exp_config_listified_leaves = utils_dict.listify_leaves(raw_exp_config)
         exp_config_list_of_dicts    = utils_dict.DL2LD(exp_config_listified_leaves)
-        exp_config_list_of_objects  = [ exp_config_cls(copy.deepcopy(exp_config_dict)) for exp_config_dict in exp_config_list_of_dicts ]
+        exp_config_list_of_objects  = [ exp_config_cls(exp_config_dict=copy.deepcopy(exp_config_dict)) for exp_config_dict in exp_config_list_of_dicts ]
         return exp_config_list_of_objects
     
 
     def preprocess_extra_config(self, raw_extra_config, extra_config_cls:Type[ExtraConfig]):
         if self.verbose>=1: print("Preprocessing extra config...")
-        extra_config = extra_config_cls(copy.deepcopy(raw_extra_config))
+        extra_config = extra_config_cls(extra_config_dict=copy.deepcopy(raw_extra_config))
         return extra_config
     
     

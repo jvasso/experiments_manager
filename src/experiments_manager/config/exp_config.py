@@ -20,7 +20,7 @@ class ExpConfig(ABC):
     def _set_special_paths(cls):
         pass
 
-    def __init__(self, raw_exp_config_dict:dict, path=None, id=None, assign_attributes:bool=True):
+    def __init__(self, exp_config_dict:dict, path=None, id=None, assign_attributes:bool=True):
         self._assign_attributes = assign_attributes
         ExpConfig._set_paths()
         type(self)._set_special_paths()
@@ -29,7 +29,7 @@ class ExpConfig(ABC):
         elif id is not None:
             self.init_from_id(id)
         else:
-            self.standard_init(raw_exp_config_dict)
+            self.standard_init(exp_config_dict)
     
 
     def init_from_path(self, path:str):

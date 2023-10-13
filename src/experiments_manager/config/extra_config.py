@@ -16,11 +16,11 @@ class ExtraConfig:
     def _set_special_paths(cls):
         pass
 
-    def __init__(self, raw_extra_config, assign_attributes:bool=True):
+    def __init__(self, extra_config_dict:dict, assign_attributes:bool=True):
         self._assign_attributes = assign_attributes
         ExtraConfig._set_paths()
         type(self)._set_special_paths()
-        self.extra_config_dict = ExtraConfig.preprocess_params(raw_extra_config)
+        self.extra_config_dict = ExtraConfig.preprocess_params(extra_config_dict)
         if self._assign_attributes: self.assign_attributes()
     
 
