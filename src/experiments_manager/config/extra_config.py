@@ -11,10 +11,15 @@ class ExtraConfig:
     @classmethod
     def _set_paths(cls):
         cls.MODULES = PathManager.CONFIG_MODULES_PATH + "/extra_config"
+    
+    @classmethod
+    def _set_special_paths(cls):
+        pass
 
     def __init__(self, raw_extra_config, assign_attributes:bool=True):
         self._assign_attributes = assign_attributes
         ExtraConfig._set_paths()
+        type(self)._set_special_paths()
         self.extra_config_dict = ExtraConfig.preprocess_params(raw_extra_config)
         if self._assign_attributes: self.assign_attributes()
     

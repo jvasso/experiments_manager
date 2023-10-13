@@ -14,10 +14,15 @@ class Hyperparams(ABC):
     def _set_paths(cls):
         cls.IDS     = PathManager.IDS_PATH + "/hyperparams"
         cls.MODULES = PathManager.CONFIG_MODULES_PATH + "/hyperparams"
+    
+    @classmethod
+    def _set_special_paths(cls):
+        pass
 
     def __init__(self, hyperparams_dict:dict=None, id:str=None, assign_attributes:bool=True):
         self._assign_attributes = assign_attributes
-        self._set_paths()
+        Hyperparams._set_paths()
+        type(self)._set_special_paths()
         if (id is not None) and (hyperparams_dict is not None):
             self.easy_init(hyperparams_dict, id)
         elif (id is not None):

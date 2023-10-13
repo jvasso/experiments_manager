@@ -16,9 +16,14 @@ class ExpConfig(ABC):
         cls.IDS     = PathManager.IDS_PATH + "/exp_config"
         cls.MODULES = PathManager.CONFIG_MODULES_PATH + "/exp_config"
     
+    @classmethod
+    def _set_special_paths(cls):
+        pass
+
     def __init__(self, raw_exp_config_dict:dict, path=None, id=None, assign_attributes:bool=True):
         self._assign_attributes = assign_attributes
         ExpConfig._set_paths()
+        type(self)._set_special_paths()
         if path is not None:
             self.init_from_path(path)
         elif id is not None:
