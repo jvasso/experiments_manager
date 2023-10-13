@@ -15,7 +15,8 @@ class Hyperparams(ABC):
         cls.IDS     = PathManager.IDS_PATH + "/hyperparams"
         cls.MODULES = PathManager.CONFIG_MODULES_PATH + "/hyperparams"
 
-    def __init__(self, hyperparams_dict:dict=None, id:str=None):
+    def __init__(self, hyperparams_dict:dict=None, id:str=None, assign_attributes:bool=True):
+        self._assign_attributes = assign_attributes
         self._set_paths()
         if (id is not None) and (hyperparams_dict is not None):
             self.easy_init(hyperparams_dict, id)
@@ -30,7 +31,7 @@ class Hyperparams(ABC):
 
     def easy_init(self, definitive_hyperparams_dict: dict, id: str):
         self.hyperparams_dict = definitive_hyperparams_dict
-        self.assign_attributes(self.hyperparams_dict)
+        if self._assign_attributes: self.assign_attributes(self.hyperparams_dict)
         self.id = id
         self.structure_path = self.build_structure_path()
         self.infos_dict = "not provided (easy init)"
@@ -39,7 +40,7 @@ class Hyperparams(ABC):
     def init_from_id(self, id):
         file_path = Hyperparams.IDS+"/"+id+".json"
         self.hyperparams_dict = utils_files.load_json_file(file_path)
-        self.assign_attributes(self.hyperparams_dict)
+        if self._assign_attributes: self.assign_attributes(self.hyperparams_dict)
         self.id = id
         self.structure_path = self.build_structure_path()
         self.infos_dict = "not provided (init_from_id)"
@@ -48,7 +49,7 @@ class Hyperparams(ABC):
         self.hyperparams_dict, self.infos_dict = self.preprocess_hyperparams(raw_hyperparams_dict)
         self.id = Hyperparams.assign_id(self.hyperparams_dict)
         self.structure_path = self.build_structure_path()
-        self.assign_attributes(self.hyperparams_dict)
+        if self._assign_attributes: self.assign_attributes(self.hyperparams_dict)
 
 
     def preprocess_hyperparams(self, raw_hyperparams_dict):

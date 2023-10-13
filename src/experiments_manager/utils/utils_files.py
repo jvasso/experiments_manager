@@ -19,8 +19,11 @@ def load_yaml_file(filename):
 def load_json_file(file_path:str):
     if not file_path.endswith(".json"): file_path += ".json"
     if not os.path.isfile(file_path): return None
-    with open(file_path, 'r') as json_file:
-        data_dict = json.load(json_file)
+    try:
+        with open(file_path, 'r') as json_file:
+            data_dict = json.load(json_file)
+    except json.JSONDecodeError:
+        data_dict = None
     return data_dict
 
 

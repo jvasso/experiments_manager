@@ -16,7 +16,8 @@ class ExpConfig(ABC):
         cls.IDS     = PathManager.IDS_PATH + "/exp_config"
         cls.MODULES = PathManager.CONFIG_MODULES_PATH + "/exp_config"
     
-    def __init__(self, raw_exp_config_dict:dict, path=None, id=None):
+    def __init__(self, raw_exp_config_dict:dict, path=None, id=None, assign_attributes:bool=True):
+        self._assign_attributes = assign_attributes
         ExpConfig._set_paths()
         if path is not None:
             self.init_from_path(path)
@@ -28,7 +29,7 @@ class ExpConfig(ABC):
 
     def init_from_path(self, path:str):
         self.exp_config_dict = utils_files.load_json_file(file_path=path)
-        self.assign_attributes(self.exp_config_dict)
+        if self._assign_attributes: self.assign_attributes(self.exp_config_dict)
         self.id = path.split("/")[-1].split(".")[0]
         self.structure_path = self.build_structure_path()
     
@@ -39,7 +40,7 @@ class ExpConfig(ABC):
 
     def standard_init(self, raw_exp_config_dict:dict):
         self.exp_config_dict = self.preprocess_config(raw_exp_config_dict)
-        self.assign_attributes(self.exp_config_dict)
+        if self._assign_attributes: self.assign_attributes(self.exp_config_dict)
         self.id, is_new = self.assign_id()
         self.structure_path = self.build_structure_path()
         if is_new: self.save_exp_config(id)
