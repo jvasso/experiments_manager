@@ -76,14 +76,16 @@ class BaseConfig(ABC):
     def connect_tagged_modules(self, raw_dict):
         remaining_modules = self.find_config_module(raw_dict, path="", parent=None, results=None)
         for triplet in remaining_modules:
-            path, parent, value = triplet["path"], triplet["parent"], triplet["value"]
+            path, parent, super_parent, value = triplet["path"], triplet["parent"], triplet["super_parent"], triplet["value"]
             if path in type(self).MODULES_CONNECTOR.keys():
                 raise NotImplementedError("TODO.")
             else:
                 input_dict_path = path + "/" + type(self).MODULES_TAG
-                if parent in utils_files.get_dirnames_in_dir(type(self).MODULES):
+                modules = utils_files.get_dirnames_in_dir(type(self).MODULES)
+                common_modules = utils_files.get_dirnames_in_dir(type(self).COMMON_MODULES)
+                if any(x in modules for x in [parent, super_parent]):
                     output_os_path  = type(self).MODULES + path
-                elif parent in utils_files.get_dirnames_in_dir(type(self).COMMON_MODULES):
+                elif any(x in common_modules for x in [parent, super_parent]):
                     output_os_path  = type(self).COMMON_MODULES + path
                 else:
                     raise Exception(f"Module {path}/{value} not supported.")
