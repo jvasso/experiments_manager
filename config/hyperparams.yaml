@@ -3,4 +3,5 @@ activation: ["relu", "tanh"]
 pretrained_model: "model1"
 
 env_params:
+  num_students: 10
   config_module: "env2"

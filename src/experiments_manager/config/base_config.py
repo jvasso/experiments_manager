@@ -13,6 +13,7 @@ class BaseConfig(ABC):
         cls.MODULES_TAG = "config_module"
         cls.COMMON_MODULES = PathManager.CONFIG_MODULES_PATH + "/common"
         cls.MODULES_CONNECTOR = {}
+        cls.INTERNAL_CONNECTOR = {}
         cls.IDS_EXT = ".json"
         if ids: cls.IDS = PathManager.IDS_PATH + "/" + name
         cls.MODULES = PathManager.CONFIG_MODULES_PATH + "/" + name
@@ -51,10 +52,11 @@ class BaseConfig(ABC):
         return self._id
     
     
-    def preprocess_config_dict(self, raw_dict):
-        raw_dict = self.connect_modules(raw_dict)
-        connected_dict = self.connect_tagged_modules(raw_dict)
-        return connected_dict, {}
+    def preprocess_config_dict(self, config_dict):
+        config_dict = self.connect_modules(config_dict)
+        config_dict = self.connect_tagged_modules(config_dict)
+        config_dict = self.connect_internally(config_dict)
+        return config_dict, {}
     
 
     def connect_modules(self, config_dict):
@@ -62,6 +64,14 @@ class BaseConfig(ABC):
         for input_dict_path, output_os_path in modules_connector.items():
             utils_dict.connect_dict_to_file(input_dict_path, output_os_path, config_dict)
         return config_dict
+    
+
+    def connect_internally(self, config_dict):
+        internal_connector = type(self).INTERNAL_CONNECTOR
+        for input_dict_path, output_dict_path in internal_connector.items():
+            utils_dict.connect_dict_internally(input_dict_path, output_dict_path, config_dict)
+        return config_dict
+    
     
     def connect_tagged_modules(self, raw_dict):
         remaining_modules = self.find_config_module(raw_dict, path="", parent=None, results=None)
