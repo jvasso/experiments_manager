@@ -83,11 +83,15 @@ class BaseConfig(ABC):
                 input_dict_path = path + "/" + type(self).MODULES_TAG
                 modules = utils_files.get_dirnames_in_dir(type(self).MODULES)
                 common_modules = utils_files.get_dirnames_in_dir(type(self).COMMON_MODULES)
-                if any(x in modules for x in [parent, super_parent]):
-                    output_os_path  = type(self).MODULES + path
-                elif any(x in common_modules for x in [parent, super_parent]):
-                    output_os_path  = type(self).COMMON_MODULES + path
-                else:
+                found_module = False
+                for x in [parent, super_parent]:
+                    if   x in modules:
+                        output_os_path  = type(self).MODULES + path.split(x)[0] + x
+                        found_module = True
+                    elif x in common_modules:
+                        output_os_path  = type(self).COMMON_MODULES + path.split(x)[0] + x
+                        found_module = True
+                if not found_module:
                     raise Exception(f"Module {path}/{value} not supported.")
                 try:
                     utils_dict.connect_dict_to_file(input_dict_path=input_dict_path, output_os_path=output_os_path, data_dict=raw_dict, remove_key=type(self).MODULES_TAG)

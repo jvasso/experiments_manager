@@ -19,8 +19,8 @@ class ExpConfig(BaseConfig):
     
 
     def init_from_path(self, path:str):
-        self.exp_config_dict = utils_files.load_json_file(file_path=path)
-        if self._assign_attributes: self.assign_attributes(self.exp_config_dict)
+        self.config_dict = utils_files.load_json_file(file_path=path)
+        if self._assign_attributes: self.assign_attributes(self.config_dict)
         self._id = path.split("/")[-1].split(".")[0]
         self._structure_path = self.build_structure_path()
         

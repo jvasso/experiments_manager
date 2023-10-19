@@ -183,14 +183,14 @@ class ConfigManager:
 
     
     def load_config(self, no_hyperparams=False):
-        hyperparams  = None if no_hyperparams else ConfigManager.get_hyperparams(ConfigManager.HYPERPARAMS_PATH)
-        exp_config   = utils_files.load_yaml_file(ConfigManager.EXP_CONFIG_PATH)
-        extra_config = utils_files.load_yaml_file(ConfigManager.EXTRA_CONFIG_PATH)
+        hyperparams  = None if no_hyperparams else ConfigManager.load_dir_config(ConfigManager.HYPERPARAMS_PATH)
+        exp_config   = ConfigManager.load_dir_config(ConfigManager.EXP_CONFIG_PATH)
+        extra_config = ConfigManager.load_dir_config(ConfigManager.EXTRA_CONFIG_PATH)
         return hyperparams, exp_config, extra_config
 
 
     @staticmethod
-    def get_hyperparams(dir):
+    def load_dir_config(dir):
         if not os.path.isdir(dir):
             dir += ".yaml" if ".yaml" not in dir else ""
             if not os.path.isfile(dir): raise Exception(dir + " is not a directory nor a file.")
@@ -202,7 +202,7 @@ class ConfigManager:
             if ext == "yaml":
                 hyperparams[file_no_ext] = utils_files.load_yaml_file(dir+"/"+file)
         for sub_dir in sub_dirs:
-            hyperparams[sub_dir] = ConfigManager.get_hyperparams(dir+"/"+sub_dir)
+            hyperparams[sub_dir] = ConfigManager.load_dir_config(dir+"/"+sub_dir)
         return hyperparams
     
 
