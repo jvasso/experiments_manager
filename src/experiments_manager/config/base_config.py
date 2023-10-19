@@ -95,7 +95,7 @@ class BaseConfig(ABC):
     
 
 
-    def find_config_module(self, tree, path="", parent=None, results=None):
+    def find_config_module(self, tree, path="", parent=None, super_parent=None, results=None):
         if results is None:
             results = []
         for key, value in tree.items():
@@ -104,10 +104,11 @@ class BaseConfig(ABC):
                 results.append({
                     'path': path,
                     'parent': parent,
+                    'super_parent': super_parent,
                     'value': value
                 })
             if isinstance(value, dict):
-                self.find_config_module(value, new_path, key, results)
+                self.find_config_module(tree=value, path=new_path, parent=key, super_parent=parent, results=results)
         return results
     
 
