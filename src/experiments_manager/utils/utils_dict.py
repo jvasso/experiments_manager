@@ -81,7 +81,7 @@ def LD2DL(LD):
     DL = {k: [dic[k] for dic in LD] for k in LD[0]}
     return DL
 
-def connect_dict_to_file(input_dict_path:str, output_os_path:str, data_dict:dict):
+def connect_dict_to_file(input_dict_path:str, output_os_path:str, data_dict:dict, remove_key:str=None):
     target_filename = get_value_at_path(input_dict_path, data_dict)
     target_file_path = output_os_path + "/" + target_filename
     if target_filename == "none":
@@ -89,6 +89,8 @@ def connect_dict_to_file(input_dict_path:str, output_os_path:str, data_dict:dict
     else:
         target_dict = utils_files.load_yaml_file(target_file_path)
     #assert target_dict is not None
+    if remove_key is not None:
+        input_dict_path = input_dict_path.split('/'+remove_key)[0]
     set_value_at_path(input_dict_path, target_dict, data_dict)
 
 

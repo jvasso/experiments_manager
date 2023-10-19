@@ -37,7 +37,7 @@ class Experiment(ABC):
 
     @abstractmethod
     def run_exp(self, trial_params=None):
-        raise NotImplementedError
+        raise NotImplementedError()
     
     def save_model(self, model, path):
         raise Exception("You must implement the save_model method to be able to save the model.")
@@ -46,7 +46,8 @@ class Experiment(ABC):
         raise Exception("You must implement the load_model method to be able to load a model.")
 
     
-    def check_format(self, result):
+    def check_format(self, result:dict):
+        assert isinstance(result, dict), f"'result' type is {type(result)} instead of dictionary."
         mandatory_metrics = self.config.extra_config.metrics
         recorded_metrics = result.keys()
         for mandatory_metric in mandatory_metrics :

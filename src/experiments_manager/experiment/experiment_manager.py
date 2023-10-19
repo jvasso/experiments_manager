@@ -54,11 +54,11 @@ class ExperimentManager:
     def compare_results(self, metrics:list):
         merged_result = {}
         for exp_config in self.configManager.exp_config_list:
-            merged_result[exp_config.id] = {hyperparam.id:None for hyperparam in self.configManager.hyperparams_list}
+            merged_result[exp_config._id] = {hyperparam.id:None for hyperparam in self.configManager.hyperparams_list}
         for config in self.configManager.configs_list:
             assert type(config)==Config
             config_result, config_stats = config.merge_trial_results(metrics=metrics)
-            merged_result[config.exp_config.id][config.hyperparams.id] = config_stats
+            merged_result[config.exp_config._id][config.hyperparams._id] = config_stats
         return merged_result
     
     
@@ -67,7 +67,7 @@ class ExperimentManager:
         search_space = self.preprocess_search_space(self.configManager.hyperparam_search_space)
         for exp_config in self.configManager.exp_config_list:
             # config = self.configManager.get_config(exp_config, hyperparams)
-            exp_config_id = exp_config.id
+            exp_config_id = exp_config._id
             configs_done = self.configManager.exp_config2configDone[exp_config]
             previous_results = self.get_hyperparams_results_pairs(configs_done)
             self.initialize_optimizer(optimizer, previous_results)

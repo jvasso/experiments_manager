@@ -1,4 +1,6 @@
-num_layers: [2,4,6]
+num_layers: [6]
 activation: ["relu", "tanh"]
 pretrained_model: "model1"
 
+env_params:
+  config_module: "env2"

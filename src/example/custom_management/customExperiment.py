@@ -24,8 +24,9 @@ class CustomExperiment(Experiment):
 
         # extra_config
         self.log_frequency = self.config.extra_config.log_frequency
-
+        
         random.seed(a=int(trial_params["seed"]))
         result = {"last_train_reward":random.randint(0,9), "last_test_reward":random.randint(0,9)}
+        model = "random"
         
-        return result
+        return result, model

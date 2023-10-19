@@ -78,7 +78,7 @@ class Config(ABC):
 
 
     def build_results_folder_path(self):
-        structures_paths_dict = {"hyperparams":self.hyperparams.get_structure_path(), "exp_config":self.exp_config.get_structure_path()}
+        structures_paths_dict = {"hyperparams":self.hyperparams._structure_path, "exp_config":self.exp_config._structure_path}
         path_list = [ structures_paths_dict[key] for key in Config.STRUCTURE ]
         structure_path = "/".join(path_list)
         results_folder_path = PathManager.RESULTS_PATH +"/"+ structure_path
