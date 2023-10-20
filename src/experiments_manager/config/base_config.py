@@ -117,18 +117,22 @@ class BaseConfig(ABC):
                 self.find_config_module(tree=value, path=new_path, parent=key, super_parent=parent, results=results)
         return results
     
-
-    def assign_attributes(self, input_dict, distinction:str=None):
+    
+    def assign_attributes(self, input_dict:dict, distinction:str=None):
         for key, value in input_dict.items():
             if isinstance(value, dict):
                 setattr(self, key, value)
                 self.assign_attributes(value, distinction=key)
             else:
+                is_property = False
                 if hasattr(self, key):
-                    key = distinction+"_"+key
-                    if hasattr(self, key):
-                        raise Exception(f"Attribute '{key}' already exists!")
-                setattr(self, key, value)
+                    is_property = (getattr(self, key, None) != property)
+                    if not is_property:
+                        key = distinction+"_"+key
+                        if hasattr(self, key):
+                            raise Exception(f"Attribute '{key}' already exists!")
+                if not is_property:
+                    setattr(self, key, value)
     
 
     def assign_id(self, config_dict:dict, prefix:str=""):
