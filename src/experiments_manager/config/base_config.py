@@ -167,8 +167,11 @@ class BaseConfig(ABC):
         return True
     
 
+    # def __getitem__(self, name):
+    #     return self.__dict__.get(name, None)
+    
     def __getitem__(self, name):
-        return self.__dict__.get(name, None)
+        return utils_dict.get_value_at_path(name, self.config_dict)
     
     def __contains__(self, item):
         return item in self.__dict__
