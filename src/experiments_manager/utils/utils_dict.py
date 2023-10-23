@@ -12,9 +12,12 @@ def get_value_at_path(path, tree:dict):
     path = maybe_str_path2list_path(path)
     current_node = tree
     for element in path:
-        if not isinstance(current_node, dict) or (element not in current_node):
+        try:
+            if (element not in current_node):
+                return None
+            current_node = current_node[element]
+        except:
             return None
-        current_node = current_node[element]
     return current_node
 
 
