@@ -88,10 +88,11 @@ def connect_dict_to_file(input_dict_path:str, output_os_path:str, data_dict:dict
         target_dict = None
     else:
         target_dict = utils_files.load_yaml_file(target_file_path)
-    #assert target_dict is not None
     if remove_key is not None:
         input_dict_path = input_dict_path.split('/'+remove_key)[0]
-    set_value_at_path(input_dict_path, target_dict, data_dict)
+        target_dict.update(get_value_at_path(input_dict_path, data_dict))
+        del target_dict[remove_key]
+    set_value_at_path(path=input_dict_path, value=target_dict, tree=data_dict)
 
 
 def connect_dict_internally(input_dict_path:str, output_dict_path:str, data_dict:dict):
@@ -297,12 +298,12 @@ def pretty_print_dict(d, indent=0):
 #         assert isinstance(current_dict[key], dict), "The entry '"+key+"' should be a dictionary."
 #         merged_dict.update(copy.deepcopy(current_dict[key]))
 #     return merged_dict
-def merge_subdicts(dicts_list:list, key:Union[str,list], config_dict:bool=True):
+def merge_subdicts(dicts_list:list, key:Union[str,list]):
     # assert isinstance(dicts_list, list) and all( isinstance(d, dict) or isinstance(d.__dict__, dict) for d in dicts_list)
     assert isinstance(key, (str,list))
     merged_dict = {}
     for current_dict in dicts_list:
-        value = get_value_at_path(key, current_dict) if config_dict else get_value_at_path(key, current_dict)
+        value = get_value_at_path(key, current_dict)
         if value is not None:
             assert isinstance(value, dict), "The entry '"+key+"' should be a dictionary."
             merged_dict.update(copy.deepcopy(value))
