@@ -1,18 +1,18 @@
 import json
 import hashlib
 from itertools import product
-from typing import List
+from typing import List, Union
 import copy
 
 from . import utils_files
 
 
 def get_value_at_path(path, tree:dict):
-    assert type(tree)==dict
+    # assert type(tree)==dict
     path = maybe_str_path2list_path(path)
     current_node = tree
     for element in path:
-        if not isinstance(current_node, dict) or element not in current_node:
+        if not isinstance(current_node, dict) or (element not in current_node):
             return None
         current_node = current_node[element]
     return current_node
@@ -288,12 +288,22 @@ def pretty_print_dict(d, indent=0):
             print('  ' * indent + "• " + str(key) + ": " +str(value))
 
 
-def merge_subdicts(dicts_list:List[dict], key:str):
-    assert isinstance(dicts_list, list) and all( isinstance(d, dict) or isinstance(d.__dict__, dict) for d in dicts_list)
-    assert isinstance(key, str)
-    accepted_dicts = [ current_dict for current_dict in dicts_list if (key in current_dict)]
+# def merge_subdicts(dicts_list:List[dict], key:str):
+#     assert isinstance(dicts_list, list) and all( isinstance(d, dict) or isinstance(d.__dict__, dict) for d in dicts_list)
+#     assert isinstance(key, str)
+#     accepted_dicts = [ current_dict for current_dict in dicts_list if (key in current_dict)]
+#     merged_dict = {}
+#     for current_dict in accepted_dicts:
+#         assert isinstance(current_dict[key], dict), "The entry '"+key+"' should be a dictionary."
+#         merged_dict.update(copy.deepcopy(current_dict[key]))
+#     return merged_dict
+def merge_subdicts(dicts_list:list, key:Union[str,list], config_dict:bool=True):
+    # assert isinstance(dicts_list, list) and all( isinstance(d, dict) or isinstance(d.__dict__, dict) for d in dicts_list)
+    assert isinstance(key, (str,list))
     merged_dict = {}
-    for current_dict in accepted_dicts:
-        assert isinstance(current_dict[key], dict), "The entry '"+key+"' should be a dictionary."
-        merged_dict.update(copy.deepcopy(current_dict[key]))
+    for current_dict in dicts_list:
+        value = get_value_at_path(key, current_dict) if config_dict else get_value_at_path(key, current_dict)
+        if value is not None:
+            assert isinstance(value, dict), "The entry '"+key+"' should be a dictionary."
+            merged_dict.update(copy.deepcopy(value))
     return merged_dict

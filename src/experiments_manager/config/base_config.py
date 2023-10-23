@@ -174,7 +174,7 @@ class BaseConfig(ABC):
         return utils_dict.get_value_at_path(name, self.config_dict)
     
     def __contains__(self, item):
-        return item in self.__dict__
+        return item in self.config_dict
     
     def get(self, key, default=None):
         if key in self:  # This uses the __contains__ method
