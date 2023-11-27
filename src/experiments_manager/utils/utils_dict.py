@@ -301,13 +301,16 @@ def pretty_print_dict(d, indent=0):
 #         assert isinstance(current_dict[key], dict), "The entry '"+key+"' should be a dictionary."
 #         merged_dict.update(copy.deepcopy(current_dict[key]))
 #     return merged_dict
-def merge_subdicts(dicts_list:list, key:Union[str,list]):
+def merge_subdicts(obj_list:list, key:Union[str,list]):
     # assert isinstance(dicts_list, list) and all( isinstance(d, dict) or isinstance(d.__dict__, dict) for d in dicts_list)
     assert isinstance(key, (str,list))
     merged_dict = {}
-    for current_dict in dicts_list:
-        value = get_value_at_path(key, current_dict)
-        if value is not None:
-            assert isinstance(value, dict), "The entry '"+key+"' should be a dictionary."
-            merged_dict.update(copy.deepcopy(value))
+    for current_obj in obj_list:
+        attr = getattr(type(current_obj), key, None)
+        value_dict = getattr(current_obj, key) if isinstance(attr, property) else get_value_at_path(key, current_obj)
+        if value_dict is not None:
+            assert isinstance(value_dict, dict), "The entry '"+key+"' should be a dictionary."
+            conflicting_key = next((sub_key for sub_key in value_dict if sub_key in merged_dict), None)
+            if conflicting_key is not None: raise KeyError(f"Duplicate key '{conflicting_key}' found in {current_obj}")
+            merged_dict.update(copy.deepcopy(value_dict))
     return merged_dict
